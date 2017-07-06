@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imamirror2-unity.Plugins", "Imamirror2-unity.Plugins.csproj", "{033A389C-9124-8CE3-DB77-EA2B4D986841}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imamirror2-unity", "Imamirror2-unity.csproj", "{729765E5-2D6D-1DAB-8D14-61772A857057}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Imamirror2-unity.Editor.Plugins", "Imamirror2-unity.Editor.Plugins.csproj", "{8C365C2A-B14C-1EF4-D544-C597AC52A1FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{033A389C-9124-8CE3-DB77-EA2B4D986841}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{033A389C-9124-8CE3-DB77-EA2B4D986841}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{033A389C-9124-8CE3-DB77-EA2B4D986841}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{033A389C-9124-8CE3-DB77-EA2B4D986841}.Release|Any CPU.Build.0 = Release|Any CPU
+		{729765E5-2D6D-1DAB-8D14-61772A857057}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{729765E5-2D6D-1DAB-8D14-61772A857057}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{729765E5-2D6D-1DAB-8D14-61772A857057}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{729765E5-2D6D-1DAB-8D14-61772A857057}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C365C2A-B14C-1EF4-D544-C597AC52A1FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C365C2A-B14C-1EF4-D544-C597AC52A1FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C365C2A-B14C-1EF4-D544-C597AC52A1FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C365C2A-B14C-1EF4-D544-C597AC52A1FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

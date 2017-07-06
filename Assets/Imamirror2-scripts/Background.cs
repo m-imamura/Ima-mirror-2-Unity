@@ -1,0 +1,164 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using Windows.Kinect;
+
+public class Background : MonoBehaviour {
+
+    // 背景の情報
+    public UnityEngine.Vector4[] points;
+    public Color32[] points_color;
+    public int points_num = 0;
+
+    // Kinectセンサー
+    private KinectSensor _Sensor;
+
+    // Multi
+    public GameObject MultiSourceManager; // MaltiSourceMagagerがアタッチされているオブジェクト
+    private MultiSourceManager _MultiManager; // ↑のスクリプトを格納
+    
+    // Color
+    private Texture2D ColorDATA; // 色を取るためのテクスチャ
+    private ColorSpacePoint[] ColorSpacePOINTS; // cameraやdepthとマッピングするため
+    private int color_height;
+    private int color_width;
+
+    // Depth
+    private ushort[] DepthDATA;
+    private int depth_width;
+    private int depth_height;
+    
+    // Camera
+    private CameraSpacePoint[] CameraSpacePOINTS;
+
+    // mapper
+    private CoordinateMapper mapper;
+
+    // Particles
+    public ParticleSystem.Particle[] particles;
+    public int particle_Max = 10000;
+    public float particle_Size = 2f;
+    public int particle_density = 4; // パーティクル密度．何個間引くか．1以上整数
+
+
+    // Use this for initialization
+    void Start () {
+        
+        points = new UnityEngine.Vector4[particle_Max];
+        points_color = new Color32[particle_Max];
+
+        // センサーを取得
+        _Sensor = KinectSensor.GetDefault();
+        if (_Sensor == null)
+        {
+            return;
+        }
+
+        _MultiManager = MultiSourceManager.GetComponent<MultiSourceManager>();
+        if (_MultiManager == null)
+        {
+            return;
+        }
+
+        // DepthDATA関係
+        depth_width = (int)_Sensor.DepthFrameSource.FrameDescription.Width;
+        depth_height = (int)_Sensor.DepthFrameSource.FrameDescription.Height;
+        DepthDATA = new ushort[depth_width * depth_height];
+
+        // ColorDATA関係
+        color_width = _MultiManager.ColorWidth;
+        color_height = _MultiManager.ColorHeight;
+        ColorDATA = new Texture2D(color_width, color_height, TextureFormat.RGBA32, false);
+        ColorSpacePOINTS = new ColorSpacePoint[depth_width * depth_height];
+
+        // Camera関係
+        CameraSpacePOINTS = new CameraSpacePoint[depth_width * depth_height];
+
+        // mapper
+        mapper = KinectSensor.GetDefault().CoordinateMapper;
+
+        // パーティクルを作る
+        particles = new ParticleSystem.Particle[particle_Max];
+        for (int i = 0; i < particle_Max; i++)
+        {
+            particles[i].position = new Vector3(0, 0, 0);
+            particles[i].startSize = 0;
+            particles[i].startColor = Color.black;
+        }
+
+    }
+
+    // Update is called once per frame
+    void Update () {
+        if (points_num > 0) {
+            view_background();
+            Debug.Log("きてるよ");
+        }
+	}
+
+    public void get_background_data() {
+
+        if (_MultiManager == null)
+        {
+            return;
+        }
+
+        // 各種データを取得
+        ColorDATA = _MultiManager.GetColorTexture();
+        DepthDATA = _MultiManager.GetDepthData();
+
+        // mapper
+        mapper.MapDepthFrameToCameraSpace(DepthDATA, CameraSpacePOINTS);
+        mapper.MapDepthFrameToColorSpace(DepthDATA, ColorSpacePOINTS);
+
+        // Depthデータを基準にパーティクルを表示する
+        int particle_count = 0;
+        for (int y = 0; y < depth_height; y += particle_density)
+        {
+            for (int x = 0; x < depth_width; x += particle_density)
+            {
+                int index = y * depth_width + x;
+
+                if (particle_count < particle_Max)
+                {
+                    // 座標取得
+                    float p_x = CameraSpacePOINTS[index].X;
+                    float p_y = CameraSpacePOINTS[index].Y;
+                    float p_z = CameraSpacePOINTS[index].Z;
+
+                    // 色取得
+                    int color_x = (int)ColorSpacePOINTS[index].X;
+                    int color_y = (int)ColorSpacePOINTS[index].Y;
+                    Color32 color = ColorDATA.GetPixel(color_x, color_y);
+
+                    // パーティクルに代入
+                    //particles[particle_count].position = new Vector3(p_x *10f, p_y * 10f, p_z * 10f);
+                    //particles[particle_count].startSize = particle_Size;
+                    //particles[particle_count].startColor = color;
+
+                    // 初期点データに代入
+                    points[particle_count].x = p_x;
+                    points[particle_count].y = p_y;
+                    points[particle_count].z = p_z;
+                    points[particle_count].w = 1.0f;
+                    points_color[particle_count] = color;
+
+                    particle_count++;
+                }
+            }
+        }
+        points_num = particle_count;
+        return;
+    }
+
+    public void view_background() {
+
+        for (int p = 0; p < points_num; p++)
+        {
+            particles[p].position = new Vector3(-points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
+            particles[p].startSize = particle_Size;
+            particles[p].startColor = points_color[p];
+        }
+        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+    }
+}
