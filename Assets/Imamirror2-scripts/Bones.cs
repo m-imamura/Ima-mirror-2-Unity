@@ -311,8 +311,23 @@ public class Bones : MonoBehaviour
         // テスト用出力
         for (int i = 0; i < BONES; i++)
         {
-            Debug.Log("define_bone_connect(): ボーン "+i+ ": ボトム "+connect_bottom[i]+"トップ "+connect_top[i]);
+            //Debug.Log("define_bone_connect(): ボーン "+i+ ": ボトム "+connect_bottom[i]+"トップ "+connect_top[i]);
         }
+    }
+
+    public void clear_bones() {
+        for (int b = 0; b < BONES; b++ ) {
+            top_init[b] = new Vector4(0, 0, 0, 0);
+            bottom_init[b] = new Vector4(0, 0, 0, 0);
+            vector_init[b] = new Vector4(0, 0, 0, 0);
+            length[b] = 0;     
+
+            top[b] = new Vector4(0, 0, 0, 0);
+            bottom[b] = new Vector4(0, 0, 0, 0);    
+            vector[b] = new Vector4(0, 0, 0, 0);
+        }
+        Debug.Log("clear bones");
+        return;
     }
 
 }

@@ -24,6 +24,7 @@ public class Root : MonoBehaviour {
     // Human
     public GameObject HumanOject_prefab;
     private GameObject[] HumanObject;
+    public Human[] human_script;
 
     // Use this for initialization
     void Start () {
@@ -51,9 +52,10 @@ public class Root : MonoBehaviour {
 
         // Humanオブジェクトのインスタンス
         HumanObject = new GameObject[BODY_MAX];
+        human_script = new Human[BODY_MAX];
         for (int body = 0; body < BODY_MAX; body++) {
-            HumanObject[body] = Instantiate(HumanOject_prefab) as GameObject;
-            //Instantiate(HumanOject_prefab);
+            HumanObject[body] = Instantiate(HumanOject_prefab) as GameObject; // オブジェクトを生成
+            human_script[body] = HumanObject[body].GetComponent<Human>(); // スクリプトを取得
         }
     }
 	
@@ -70,12 +72,21 @@ public class Root : MonoBehaviour {
         {
             return;
         }
-        // 追跡できなくなったデータを向こうにして行く？
+        // 追跡できなくなったデータをクリア
+        for (int i = 0; i < 6; i++)
+        {
+            // トラッキングできなくなったらデータをクリアする
+            int act = human_script[i].actor_num;　
+            if (act == -1)
+                continue;
+
+            if (body_data[act].IsTracked == false && human_script[i].ready == true)
+                human_script[i].clear_data();
+        }
     }
 
     // 初期データを取る
     public void get_init_data() {
-
         // Multiデータ取得
         if (_MultiManager == null)
         {
@@ -97,6 +108,7 @@ public class Root : MonoBehaviour {
 
         // データのクリア?
 
+
         // すべてのbodyについて繰り返し
         for (int body = 0; body < BODY_MAX; body++) {
             // bodyがあり，追跡できており，
@@ -107,7 +119,7 @@ public class Root : MonoBehaviour {
                     Debug.Log("body " + body+ " exist");
                     HumanObject[body].GetComponent<Human>().shape_num = body;
                     HumanObject[body].GetComponent<Human>().actor_num = body;
-                    HumanObject[body].GetComponent<Human>().set_init_data();
+                    HumanObject[body].GetComponent<Human>().set_init_data(body,body);
                 }
             }
             else {
@@ -118,10 +130,10 @@ public class Root : MonoBehaviour {
     }
 
     public void hightouch_exchange(int shape, int actor) {
-        Debug.Log("exchange " + shape + " -> " + actor);
-        HumanObject[shape].GetComponent<Human>().shape_num = shape;
-        HumanObject[shape].GetComponent<Human>().actor_num = actor;
-        HumanObject[shape].GetComponent<Human>().set_init_data();
+        //Debug.Log("exchange " + shape + " -> " + actor);
+        human_script[shape].shape_num = shape;
+        human_script[shape].actor_num = actor;
+        human_script[shape].set_init_data(shape, actor);
         return;
     } 
 }

@@ -155,7 +155,7 @@ public class Background : MonoBehaviour {
 
         for (int p = 0; p < points_num; p++)
         {
-            particles[p].position = new Vector3(-points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
+            particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
             particles[p].startSize = particle_Size;
             particles[p].startColor = points_color[p];
         }

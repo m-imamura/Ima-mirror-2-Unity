@@ -10,7 +10,7 @@ public class BodyIndexView : MonoBehaviour
     // Multi
     public GameObject MultiSourceManager; // MaltiSourceMagagerがアタッチされているオブジェクト
     private MultiSourceManager _MultiManager; // ↑のスクリプトを格納
-
+    
     // BodyIndex
     public GameObject BodyIndexSourceManager;
     private BodyIndexSourceManager _BodyIndexManager;
@@ -29,11 +29,10 @@ public class BodyIndexView : MonoBehaviour
     private int depth_width;
     private int depth_height;
 
-    // Bone
-    private CameraSpacePoint[] BonePOINTS;
-    private int BONES = 24;
-    private int JOINTS = 25;
-
+    // Root
+    public GameObject RootObject;
+    private Root _root;
+    
     // Camera
     private CameraSpacePoint[] CameraSpacePOINTS;
 
@@ -83,9 +82,9 @@ public class BodyIndexView : MonoBehaviour
         ColorDATA = new Texture2D(color_width, color_height, TextureFormat.RGBA32, false);
         ColorSpacePOINTS = new ColorSpacePoint[depth_width * depth_height];
 
-        // Bone関係
-        BonePOINTS = new CameraSpacePoint[JOINTS];
-
+        // Root
+        _root = RootObject.GetComponent<Root>();
+        
         // Camera関係
         CameraSpacePOINTS = new CameraSpacePoint[depth_width * depth_height];
 
@@ -99,15 +98,18 @@ public class BodyIndexView : MonoBehaviour
             particles[i].startSize = 0;
             particles[i].startColor = Color.black;
         }
-
+        
     }
 
     void Update()
     {
+
+        // index関係
         if (BodyIndexSourceManager == null)
         {
             return;
         }
+        // multi関係
         if (MultiSourceManager == null) {
             return;
         }
@@ -121,6 +123,22 @@ public class BodyIndexView : MonoBehaviour
         mapper.MapDepthFrameToCameraSpace(DepthDATA, CameraSpacePOINTS);
         mapper.MapDepthFrameToColorSpace(DepthDATA, ColorSpacePOINTS);
 
+        // root
+        bool[] actor_exixt = new bool[6];
+        for (int i = 0; i < 6; i++)
+            actor_exixt[i] = false;
+
+        for(int i = 0; i < 6; i++)
+        {
+            int act = _root.human_script[i].actor_num;
+            if(act != -1)
+                actor_exixt[act] = true;
+        }
+
+        // パーティクルをクリア
+        for (int p = 0; p < particle_Max; p++)
+            particles[p].position = new Vector3(0, 0, 0);
+
         // Depthデータを基準にパーティクルを表示する
         int particle_count = 0;
         for (int y=0;y<depth_height; y+=particle_density) { 
@@ -132,27 +150,29 @@ public class BodyIndexView : MonoBehaviour
                 {
                     if (IndexDATA[index] != 255)
                     {
-                        // Debug.Log("+ " + IndexDATA[index]);
-                        // 座標取得
-                        float p_x = CameraSpacePOINTS[index].X * 10;
-                        float p_y = CameraSpacePOINTS[index].Y * 10;
-                        float p_z = CameraSpacePOINTS[index].Z * 10;
+                        int j = IndexDATA[index];
+                        if (actor_exixt[j] == false) {
+                            // Debug.Log("+ " + IndexDATA[index]);
+                            // 座標取得
+                            float p_x = CameraSpacePOINTS[index].X * 10;
+                            float p_y = CameraSpacePOINTS[index].Y * 10;
+                            float p_z = CameraSpacePOINTS[index].Z * 10;
 
-                        // 色取得
-                        int color_x = (int)ColorSpacePOINTS[index].X;
-                        int color_y = (int)ColorSpacePOINTS[index].Y;
-                        Color32 color = ColorDATA.GetPixel(color_x, color_y);
+                            // 色取得
+                            int color_x = (int)ColorSpacePOINTS[index].X;
+                            int color_y = (int)ColorSpacePOINTS[index].Y;
+                            Color32 color = ColorDATA.GetPixel(color_x, color_y);
 
-                        particles[particle_count].position = new Vector3(p_x, p_y, p_z);
-                        particles[particle_count].startSize = particle_Size;
-                        particles[particle_count].startColor = color;
-                        particle_count++;
+                            particles[particle_count].position = new Vector3(p_x, p_y, p_z);
+                            particles[particle_count].startSize = particle_Size;
+                            particles[particle_count].startColor = color;
+                            particle_count++;
+                        }
                     }
                 }
             }
         }
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
-
-        //gameObject.GetComponent<Renderer>().material.mainTexture = _BodyIndexManager.GetData();
+        
     }
 }

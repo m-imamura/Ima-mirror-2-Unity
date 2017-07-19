@@ -20,7 +20,16 @@ public class HighTouch : MonoBehaviour {
     // 
     private Root _root_script;
 
-    public float d = 0.15f; // m
+    public float hand_to_hand_distance = 0.15f; // m
+
+    // 1人用か2人用か
+    public bool can_1_person = false;
+
+
+    // Particle system
+    public  GameObject particle_object;
+    private ParticleSystem particle_system;
+
 
     // Use this for initialization
     void Start () {
@@ -38,7 +47,11 @@ public class HighTouch : MonoBehaviour {
         }
 
         _root_script = GetComponent<Root>();
-	}
+
+
+        // パーティクルを作る
+        particle_system = particle_object.GetComponent<ParticleSystem>();
+    }
 
     // Update is called once per frame
     void Update() {
@@ -79,17 +92,24 @@ public class HighTouch : MonoBehaviour {
                 if (hand_position[j] == new UnityEngine.Vector3(0, 0, 0))// なかったらやめ．
                     continue;
 
-                //if (i / 2 == j / 2) // 自分の手だったらやめ
-                //    continue;
-                if (i == j)
-                    continue;
-                
-                if ((hand_position[i] - hand_position[j]).magnitude < d) {
-                    Debug.Log("★タッチ確認 " + (hand_position[i] - hand_position[j]).magnitude);
+                if (can_1_person) {
+                    if (i == j) // 1人用
+                        continue;
+                }
+                else {
+                    if (i / 2 == j / 2) // 自分の手だったらやめ
+                        continue;
+                }
+
+                if ((hand_position[i] - hand_position[j]).magnitude < hand_to_hand_distance) {
+                    //Debug.Log("★タッチ確認 " + (hand_position[i] - hand_position[j]).magnitude);
                     int body1 = i / 2;
                     int body2 = j / 2;
                     _root_script.hightouch_exchange(body1, body2);
                     _root_script.hightouch_exchange(body2, body1);
+
+                    particle_object.transform.position = hand_position[i];
+                    particle_system.Play();
                 }
             }
         }

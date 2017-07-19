@@ -18,6 +18,9 @@ public class Human : MonoBehaviour {
     public int shape_num = -1;
     public int actor_num = -1;
 
+    // 交換済みフラグ
+    public bool ready = false;
+
     // 行列変換スクリプト
     private Transformation trans;
 
@@ -62,7 +65,7 @@ public class Human : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (actor_num >= 0 && shape_num >= 0)
+        if (ready)
         {
             actor_bones.set_bones_data(actor_num);// actorのボーン情報を取得
             get_translate_body();                 // get_translate_body
@@ -70,17 +73,20 @@ public class Human : MonoBehaviour {
         }
     }
 
-    public void set_init_data() { // 実質Start()
-        if (actor_num >= 0 && shape_num >= 0)
-        {
-            shape_bones.set_bones_init_data(shape_num);
-            actor_bones.set_bones_init_data(actor_num);
-            shape_points.set_points_data(shape_num);
+    public void set_init_data(int shape, int actor) { // 実質Start()
+         // shape_num = shape;
+         // actor_num = actor;
 
-            actor_bones.set_bones_data(actor_num); //?
+        shape_bones.set_bones_init_data(shape_num);
+        actor_bones.set_bones_init_data(actor_num);
+        shape_points.set_points_data(shape_num);
 
-            Debug.Log("set_init_data() " + shape_num);
-        }
+        actor_bones.set_bones_data(actor_num); //?
+
+        ready = true;
+
+        Debug.Log("set_init_data(" + shape_num + ", " + actor_num + ")");
+
     }
 
     private void get_translate_body() {
@@ -105,19 +111,16 @@ public class Human : MonoBehaviour {
             }
 
             // テスト
-            //Debug.Log("new_bottom[" + b + "] " + new_bottom[b]);
-            particles[b].position = new Vector3(new_bottom[b].x *10f, new_bottom[b].y*10f, new_bottom[b].z*10f);
-            //particles[b].position = new Vector3(shape_bones.top_init[b].x * 10f, shape_bones.top_init[b].y * 10f, shape_bones.top_init[b].z * 10f);
-            //particles[b].position = new Vector3(actor_bones.bottom_init[b].x * 10f, actor_bones.bottom_init[b].y * 10f, actor_bones.bottom_init[b].z * 10f);
+            //particles[b].position = new Vector3(new_bottom[b].x *10f, new_bottom[b].y*10f, new_bottom[b].z*10f);
         }
         // new_bottomをパーティクルで表示
-        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+        //GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
 
         // 点群の変換
         for (int p = 0; p < shape_points.points_num; p++)
         {
             // 点の位置を初期化
-            shape_points.points[p] = new Vector4( 0.0f, 0.0f, 0.0f, 1.0f);
+            shape_points.points[p] = new Vector4( 0.0f, 0.0f, 0.0f, 0.0f);
 
             for (int b = 0; b < BONES; b++)
             {
@@ -139,7 +142,7 @@ public class Human : MonoBehaviour {
                     w_matrix.m00 = w_matrix.m11 = w_matrix.m22 = w_matrix.m33 = w;
 
                     // 変換行列の全体
-                    Matrix4x4 M_matrix;
+                    Matrix4x4 M_matrix; // M_matrixを最初に求めておくと計算回数が少なくなるはず．
                     Matrix4x4 M_inverse;
                     Matrix4x4 B_matrix;
 
@@ -183,19 +186,22 @@ public class Human : MonoBehaviour {
                     
                 }
             }
-            // mapper
-            Kinect.CameraSpacePoint camerap = new Kinect.CameraSpacePoint();
-            camerap.X = shape_points.points[p].x;
-            camerap.Y = shape_points.points[p].y;
-            camerap.Z = shape_points.points[p].z;
-            
-            Kinect.DepthSpacePoint depthp = new Kinect.DepthSpacePoint();
-            depthp = mapper.MapCameraPointToDepthSpace(camerap);
-            
-            shape_points.points[p].x = depthp.X;
-            shape_points.points[p].y = depthp.Y;
-            shape_points.points[p].z = 0.1f;
+            shape_points.points[p].x /= shape_points.points[p].w;
+            shape_points.points[p].y /= shape_points.points[p].w;
+            shape_points.points[p].z /= shape_points.points[p].w;
+            shape_points.points[p].w /= shape_points.points[p].w;
         }
         
+    }
+
+    public void clear_data()
+    {
+        Debug.Log("clear" + shape_num);
+        shape_points.clear_points();
+        shape_bones.clear_bones();
+        actor_bones.clear_bones();
+        actor_num = -1;
+        shape_num = -1;
+        ready = false;
     }
 }

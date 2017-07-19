@@ -87,8 +87,8 @@ public class Points : MonoBehaviour {
         IndexDATA = new byte[index_width * index_height];
 
         // DepthDATA関係
-        depth_width = (int)_Sensor.DepthFrameSource.FrameDescription.Width;
-        depth_height = (int)_Sensor.DepthFrameSource.FrameDescription.Height;
+        depth_width = _Sensor.DepthFrameSource.FrameDescription.Width;
+        depth_height = _Sensor.DepthFrameSource.FrameDescription.Height;
         DepthDATA = new ushort[depth_width * depth_height];
 
         // ColorDATA関係
@@ -111,8 +111,6 @@ public class Points : MonoBehaviour {
             particles[i].startSize = 0;
             particles[i].startColor = Color.black;
         }
-
-        Debug.Log("Pointsすたーーーーと");
 	}
 	
 	// Update is called once per frame
@@ -123,8 +121,7 @@ public class Points : MonoBehaviour {
     // getinitしたときのデータをもらって保存しておく関数
     public void set_points_data(int person)
     {
-        body_num = person; // 外部から与えられたボディ番号を自分のボディ番号とする． 
-
+        body_num = person;
         if (_MultiManager == null) {
             return;
         }
@@ -151,7 +148,7 @@ public class Points : MonoBehaviour {
 
                 if (particle_count < particle_Max)
                 {
-                    if ((int)IndexDATA[index] == body_num)
+                    if (IndexDATA[index] == body_num)
                     {
                         // 座標取得
                         float p_x = CameraSpacePOINTS[index].X;
@@ -162,15 +159,7 @@ public class Points : MonoBehaviour {
                         int color_x = (int)ColorSpacePOINTS[index].X;
                         int color_y = (int)ColorSpacePOINTS[index].Y;
                         Color32 color = ColorDATA.GetPixel(color_x, color_y);
-
-                        // パーティクルに代入
-                        //particles[particle_count].position = new Vector3(p_x *10f, p_y * 10f, p_z * 10f);
-                        //particles[particle_count].startSize = particle_Size;
-                        //particles[particle_count].startColor = color;
-
-                        if (DepthDATA[index] == 0)
-                            Debug.Log("測定不能点");
-
+                        
                         // 初期点データに代入
                         points_init[particle_count].x = p_x;
                         points_init[particle_count].y = p_y;
@@ -178,6 +167,9 @@ public class Points : MonoBehaviour {
                         points_init[particle_count].w = 1.0f;
                         points_color[particle_count] = color;
 
+                        particles[particle_count].startSize = particle_Size;
+                        particles[particle_count].startColor = points_color[particle_count];
+                        
                         particle_count++;
                     }
                 }
@@ -191,13 +183,21 @@ public class Points : MonoBehaviour {
     public void view_trans_points() {
 
         for (int p =0; p<points_num; p++) {
-            //particles[p].position = new Vector3(points_init[p].x * 10f, points_init[p].y * 10f, points_init[p].z * 10f);
-            particles[p].position = new Vector3(-3+points[p].x*0.01f , 1-points[p].y*0.01f, points[p].z +5f);
-            //particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
+            particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
             particles[p].startSize = particle_Size;
             particles[p].startColor = points_color[p];
         }
-        //Debug.Log("+ " + points_num + " " + points_init[50] + " -> " + points[50]);
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+    }
+
+    public void clear_points() {
+        for (int p = 0; p < particle_Max; p++) // パーティクルを全部クリアするとうまくいく．
+        {
+            points[p] = points_init[p] = new UnityEngine.Vector4(0, 0, 0, 0);
+            particles[p].position = new Vector3(0, 0, 0);
+        }
+        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+        Debug.Log("clear points body " + body_num);
+        return;
     }
 }
