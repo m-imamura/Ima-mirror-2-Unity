@@ -4,7 +4,10 @@ using UnityEngine;
 using Windows.Kinect;
 
 public class Points : MonoBehaviour {
-    
+
+    // 初期化の要不要
+    public bool pre_body_mode;
+
     // 標本点の情報
     public UnityEngine.Vector4[] points_init;   //初期位置の点(Camera座標) 最大POINTS_XYZ_NUM個
     public UnityEngine.Vector4[] points;        //変換後の点(Camera座標) 最大POINTS_XYZ_NUM個
@@ -57,9 +60,13 @@ public class Points : MonoBehaviour {
 
     // Use this for initialization
     void Start () {
-        points_init = new UnityEngine.Vector4[particle_Max];
-        points = new UnityEngine.Vector4[particle_Max];
-        points_color = new Color32[particle_Max];
+
+        if (!pre_body_mode) // ハイタッチモードだから初期化が必要
+        {
+            points_init = new UnityEngine.Vector4[particle_Max];
+            points = new UnityEngine.Vector4[particle_Max];
+            points_color = new Color32[particle_Max];
+        }
 
 
         // センサーを取得
@@ -111,7 +118,7 @@ public class Points : MonoBehaviour {
             particles[i].startSize = 0;
             particles[i].startColor = Color.black;
         }
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -181,12 +188,16 @@ public class Points : MonoBehaviour {
     }
 
     public void view_trans_points() {
-
+        
         for (int p =0; p<points_num; p++) {
             particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
+            //particles[p].position = new Vector3(points_init[p].x * 10f, points_init[p].y * 10f, points_init[p].z * 10f);
             particles[p].startSize = particle_Size;
             particles[p].startColor = points_color[p];
         }
+        particles[0].position = new Vector3(0,0,0);
+        particles[0].startSize = 10f;
+        particles[0].startColor = Color.yellow;
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
     }
 
@@ -198,6 +209,17 @@ public class Points : MonoBehaviour {
         }
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
         Debug.Log("clear points body " + body_num);
+        return;
+    }
+
+    public void clear_points_pre() {
+        for (int p = 0; p < particle_Max; p++) // パーティクルを全部クリアするとうまくいく．
+        {
+            points[p] = new UnityEngine.Vector4(0, 0, 0, 0);
+            particles[p].position = new Vector3(0, 0, 0);
+        }
+        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+        Debug.Log("clear points body PRE " + body_num);
         return;
     }
 }

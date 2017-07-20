@@ -26,6 +26,6 @@ public class ButtonScript : MonoBehaviour {
         {
             return;
         }
-        _root_script.get_init_data();
+        //_root_script.get_init_data();
     }
 }
