@@ -129,7 +129,54 @@ public class Root : MonoBehaviour {
             }
         }
     }
-    
+
+    // 初期データを取る
+    public void get_init_data()
+    {
+        // Multiデータ取得
+        if (_MultiManager == null)
+        {
+            return;
+        }
+
+        // Bodyデータ取得
+        if (_BodyManager == null)
+        {
+            return;
+        }
+        Body[] body_data = _BodyManager.GetData();
+        if (body_data == null)
+        {
+            return;
+        }
+
+        // めも　bodyを基準に構築する．認識範囲を狭める
+
+        // データのクリア?
+
+
+        // すべてのbodyについて繰り返し
+        for (int body = 0; body < BODY_MAX; body++)
+        {
+            // bodyがあり，追跡できており，
+            if (body_data[body] != null && body_data[body].IsTracked == true)
+            {
+                if (true)
+                { // 深度やポーズの条件
+                    Debug.Log("body " + body + " exist");
+                    HumanObject[body].GetComponent<Human>().shape_num = body;
+                    HumanObject[body].GetComponent<Human>().actor_num = body;
+                    HumanObject[body].GetComponent<Human>().set_init_data(body, body);
+                }
+            }
+            else
+            {
+                // humanデータをクリア?
+                Debug.Log("ないよ-");
+            }
+        }
+    }
+
     // ハイタッチで入れ替わる
     public void hightouch_exchange(int shape, int actor) {
         //Debug.Log("exchange " + shape + " -> " + actor);
