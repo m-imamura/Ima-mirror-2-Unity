@@ -118,10 +118,10 @@ public class Human : MonoBehaviour {
             }
 
             // テスト
-            particles[b].position = new Vector3(new_bottom[b].x *10f, new_bottom[b].y*10f, new_bottom[b].z*10f);
+            //particles[b].position = new Vector3(new_bottom[b].x *10f, new_bottom[b].y*10f, new_bottom[b].z*10f);
         }
         // new_bottomをパーティクルで表示
-        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+        //GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
 
         // 点群の変換
         for (int p = 0; p < shape_points.points_num; p++)
