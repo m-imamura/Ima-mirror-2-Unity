@@ -166,7 +166,7 @@ public class Root : MonoBehaviour {
                     Debug.Log("body " + body + " exist");
                     HumanObject[body].GetComponent<Human>().shape_num = body;
                     HumanObject[body].GetComponent<Human>().actor_num = body;
-                    HumanObject[body].GetComponent<Human>().set_init_data(body, body);
+                    HumanObject[body].GetComponent<Human>().set_init_data(body, body, 0);
                 }
             }
             else
@@ -178,11 +178,17 @@ public class Root : MonoBehaviour {
     }
 
     // ハイタッチで入れ替わる
-    public void hightouch_exchange(int shape, int actor) {
-        //Debug.Log("exchange " + shape + " -> " + actor);
-        human_script[shape].shape_num = shape;
-        human_script[shape].actor_num = actor;
-        human_script[shape].set_init_data(shape, actor);
+    public void hightouch_exchange(int shape, int actor, int pose) {
+
+        // 初回はshapeとactorの番号を入れる
+        if (human_script[shape].shape_num != shape || human_script[shape].actor_num != actor) {
+            human_script[shape].shape_num = shape;
+            human_script[shape].actor_num = actor;
+        }
+
+        // 二回目以降はこれだけ実行される
+        human_script[shape].set_init_data(shape, actor, pose);
+
         return;
     }
 
@@ -207,7 +213,7 @@ public class Root : MonoBehaviour {
 
         // 指定されたプレボディにactorを割り当てる
         human_script_body[pre_body].actor_num = actor;
-        human_script_body[pre_body].set_init_data(-1, actor);
+        human_script_body[pre_body].set_init_data(-1, actor, 0);
         Debug.Log("set_pre_body_actor " + pre_body + " -> " + actor);
         
         return true;

@@ -99,13 +99,13 @@ public class Background : MonoBehaviour {
 
     // Update is called once per frame
     void Update () {
-        if (background_switch)
+        /*if (background_switch)
         {
             view_background();
         }
         else {
             no_background();
-                }
+        }*/
 	}
 
     public void get_background_data() {
@@ -180,12 +180,13 @@ public class Background : MonoBehaviour {
 
     public void on_background()
     {
-        background_switch = true;
+        // background_switch = true;
+        view_background();
     }
 
     public void off_background() {
-        background_switch = false;
-        Debug.Log("off");
+        //background_switch = false;
+        no_background();
     }
 
 }

@@ -116,9 +116,32 @@ public class HighTouch : MonoBehaviour {
                         //Debug.Log("★タッチ確認 " + (hand_position[i] - hand_position[j]).magnitude);
                         int body1 = i / 2;
                         int body2 = j / 2;
-                        _root_script.hightouch_exchange(body1, body2);
-                        _root_script.hightouch_exchange(body2, body1);
 
+                        //1人目のポーズ判定
+                        float LeftShoul_vec1 = data[body1].Joints[JointType.ElbowLeft].Position.Y - data[body1].Joints[JointType.ShoulderLeft].Position.Y;
+                        float RightShoul_vec1 = data[body1].Joints[JointType.ElbowRight].Position.Y - data[body1].Joints[JointType.ShoulderRight].Position.Y;
+                        int pose1 = 0;
+                        if (LeftShoul_vec1 > 0 && RightShoul_vec1 > 0)
+                        {
+                            pose1 = 1;
+                        }
+                        Debug.Log("ハイタッチ角度 " + body1 + " L:" + LeftShoul_vec1 +", R:"+ RightShoul_vec1 + "\tポーズ " + pose1 + "と判定");
+                        _root_script.hightouch_exchange(body1, body2, pose1);
+
+                        // 2人目のポーズ判定
+                        float LeftShoul_vec2 = data[body2].Joints[JointType.ElbowLeft].Position.Y - data[body2].Joints[JointType.ShoulderLeft].Position.Y;
+                        float RightShoul_vec2 = data[body2].Joints[JointType.ElbowRight].Position.Y - data[body2].Joints[JointType.ShoulderRight].Position.Y;
+
+                        int pose2 = 0;
+                        if (LeftShoul_vec2 > 0 && RightShoul_vec2 > 0)
+                        {
+                            pose2 = 1;
+                        }
+                        Debug.Log("ハイタッチ角度 " + body1 + " L:" + LeftShoul_vec2 + ", R:" + RightShoul_vec2 + "\tポーズ " + pose2 + "と判定");
+                        _root_script.hightouch_exchange(body2, body1, pose2);
+
+
+                        // エフェクト
                         particle_object.transform.position = hand_position[i];
                         particle_system.Play();
                     }
