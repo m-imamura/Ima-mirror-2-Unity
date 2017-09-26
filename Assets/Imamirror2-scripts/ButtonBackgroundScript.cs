@@ -28,4 +28,13 @@ public class ButtonBackgroundScript : MonoBehaviour {
         }
         _back_script.get_background_data();
     }
+
+    public void set_on_background() {
+        _back_script.on_background();
+    }
+
+    public void set_off_background()
+    {
+        _back_script.off_background();
+    }
 }

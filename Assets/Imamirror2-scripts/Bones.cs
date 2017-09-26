@@ -7,6 +7,9 @@ using Kinect = Windows.Kinect;
 public class Bones : MonoBehaviour
 {
 
+    // mood
+    public bool pre_body_mode;
+
     // Manager
     public GameObject BodySourceManager;
     private BodySourceManager _BodyManager;
@@ -43,32 +46,33 @@ public class Bones : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        if (!pre_body_mode) // ハイタッチモードだから初期化が必要
+        {
+            // 動的割り当て
 
-        // 動的割り当て
+            // ボーンの情報
+            top_init = new Vector4[BONES];  //初期位置
+            bottom_init = new Vector4[BONES];//初期位置
+            vector_init = new Vector4[BONES];//初期方向
 
-        // ボーンの情報
-        top_init = new Vector4[BONES];  //初期位置
-        bottom_init = new Vector4[BONES];//初期位置
-        vector_init = new Vector4[BONES];//初期方向
+            top = new Vector4[BONES];
+            bottom = new Vector4[BONES];        //逐次位置
+            vector = new Vector4[BONES];        //逐次方向 (bottom -> top)
 
-        top = new Vector4[BONES];
-        bottom = new Vector4[BONES];        //逐次位置
-        vector = new Vector4[BONES];        //逐次方向 (bottom -> top)
+            // parent = new int[BONES];            //親ボーン
+            length = new float[BONES];          //長さ (vector_initの)
 
-        // parent = new int[BONES];            //親ボーン
-        length = new float[BONES];          //長さ (vector_initの)
+            // ボーンの接続関係
+            connect_top = new Kinect.JointType[BONES];
+            connect_bottom = new Kinect.JointType[BONES];
+            connect_parent = new int[BONES];
+            connect_impactrange = new float[BONES];
 
-        // ボーンの接続関係
-        connect_top = new Kinect.JointType[BONES];
-        connect_bottom = new Kinect.JointType[BONES];
-        connect_parent = new int[BONES];
-        connect_impactrange = new float[BONES];
+            define_bone_connect(); // 接続関係を定義
 
-        define_bone_connect(); // 接続関係を定義
-
-        // joint_positionのエラー用の値をセットする
-        joint_error_values = set_joint_error_value();
-
+            // joint_positionのエラー用の値をセットする
+            joint_error_values = set_joint_error_value();
+        }
     }
 
     // Update is called once per frame
@@ -135,9 +139,6 @@ public class Bones : MonoBehaviour
             vector[i].w = 1.0f;
 
         }
-
-        // Debug.Log("vector[0] = " + vector[0]);
-
     }
 
     private Vector4[] set_joint_error_value()
@@ -146,9 +147,8 @@ public class Bones : MonoBehaviour
         Vector4 error_value = new Vector4(0, 0, 0, 0);
 
         for (int i = 0; i < JOINTS; i++)
-        {
             joint_error_values[i] = error_value;
-        }
+
         return joint_error_values;
     }
 

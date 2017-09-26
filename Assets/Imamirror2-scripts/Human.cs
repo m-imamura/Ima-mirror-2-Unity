@@ -4,7 +4,10 @@ using UnityEngine;
 using Kinect = Windows.Kinect;
 
 public class Human : MonoBehaviour {
-    
+
+    // mode
+    public bool pre_body_mode = false;
+
     // define
     private int BONES = 24;
     private int JOINTS = 25;
@@ -60,7 +63,7 @@ public class Human : MonoBehaviour {
 
         // mapper
         mapper = Kinect.KinectSensor.GetDefault().CoordinateMapper;
-
+        Debug.Log("start bone");
     }
 	
 	// Update is called once per frame
@@ -74,12 +77,16 @@ public class Human : MonoBehaviour {
     }
 
     public void set_init_data(int shape, int actor) { // 実質Start()
-         // shape_num = shape;
-         // actor_num = actor;
+                                                      // shape_num = shape;
+                                                      // actor_num = actor;
 
-        shape_bones.set_bones_init_data(shape_num);
+        if (!pre_body_mode) // プレ身体モードでないとき
+        {
+            Debug.Log("ハイタッチもーーど");
+            shape_bones.set_bones_init_data(shape_num);
+            shape_points.set_points_data(shape_num);
+        }
         actor_bones.set_bones_init_data(actor_num);
-        shape_points.set_points_data(shape_num);
 
         actor_bones.set_bones_data(actor_num); //?
 
@@ -202,6 +209,13 @@ public class Human : MonoBehaviour {
         actor_bones.clear_bones();
         actor_num = -1;
         shape_num = -1;
+        ready = false;
+    }
+
+    public void clear_data_pre() {
+        Debug.Log("clear_data_pre");
+        shape_points.clear_points_pre();
+        actor_num = -1;
         ready = false;
     }
 }

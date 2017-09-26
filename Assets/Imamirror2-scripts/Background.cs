@@ -40,6 +40,10 @@ public class Background : MonoBehaviour {
     public float particle_Size = 2f;
     public int particle_density = 4; // パーティクル密度．何個間引くか．1以上整数
 
+    private ParticleSystem.Particle[] particles_no;
+
+    private bool background_switch = true;
+
 
     // Use this for initialization
     void Start () {
@@ -85,15 +89,23 @@ public class Background : MonoBehaviour {
             particles[i].startSize = 0;
             particles[i].startColor = Color.black;
         }
+        //off用パーティクル
+        particles_no = new ParticleSystem.Particle[1];
+        particles_no[0].position = new Vector3(0, 0, 0);
+        particles_no[0].startSize = 0;
+        particles_no[0].startColor = Color.clear;
 
     }
 
     // Update is called once per frame
     void Update () {
-        if (points_num > 0) {
+        if (background_switch)
+        {
             view_background();
-            Debug.Log("きてるよ");
         }
+        else {
+            no_background();
+                }
 	}
 
     public void get_background_data() {
@@ -161,4 +173,19 @@ public class Background : MonoBehaviour {
         }
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
     }
+
+    public void no_background() {
+        GetComponent<ParticleSystem>().SetParticles(particles_no, particles_no.Length);
+    }
+
+    public void on_background()
+    {
+        background_switch = true;
+    }
+
+    public void off_background() {
+        background_switch = false;
+        Debug.Log("off");
+    }
+
 }
