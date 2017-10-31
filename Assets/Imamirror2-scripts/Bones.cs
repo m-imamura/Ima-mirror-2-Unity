@@ -88,7 +88,7 @@ public class Bones : MonoBehaviour
         joint_position = get_body_1(body_num);
         if (joint_position == joint_error_values)
         {
-            Debug.Log("set_bones_init_dataえらーばりゅー");
+            Debug.Log("set_bones_init_data　エラー");
             return;
         }
 
@@ -114,14 +114,14 @@ public class Bones : MonoBehaviour
     }
 
     // ボーン情報の更新
-    public void set_bones_data(int body_num)
+    public int set_bones_data(int body_num)
     {
         Vector4[] joint_position = new Vector4[JOINTS];
         joint_position = get_body_1(body_num);
         if (joint_position == joint_error_values)
         {
-            Debug.Log("set_bones_dataえらーばりゅー");
-            return;
+            Debug.Log("set_bones_data　エラー");
+            return -1;
         }
 
         //すべてのボーンについて繰り返し処理
@@ -139,6 +139,14 @@ public class Bones : MonoBehaviour
             vector[i].w = 1.0f;
 
         }
+
+        /*ポーズ判定*/
+        if (vector[5].y > 0 && vector[11].y > 0) // 肩のベクトルで判断
+            return 1; // ポーズ
+        else if (false) // 他の条件があればここで． 
+            return 2;
+        else
+            return 0;
     }
 
     private Vector4[] set_joint_error_value()

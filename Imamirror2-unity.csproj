@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.6.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -91,7 +93,8 @@
     <Compile Include="Assets\Imamirror2-scripts\ButtonBackgroundScript.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonBodyscript.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonMoodScript.cs" />
-    <Compile Include="Assets\Imamirror2-scripts\ButtonScript.cs" />
+    <Compile Include="Assets\Imamirror2-scripts\ButtonStartScript.cs" />
+    <Compile Include="Assets\Imamirror2-scripts\EyelevelCamera.cs" />
     <Compile Include="Assets\Imamirror2-scripts\HighTouch.cs" />
     <Compile Include="Assets\Imamirror2-scripts\Human.cs" />
     <Compile Include="Assets\Imamirror2-scripts\Points.cs" />
@@ -108,6 +111,40 @@
     <Compile Include="Assets\KinectView\Scripts\InfraredSourceView.cs" />
     <Compile Include="Assets\KinectView\Scripts\MultiSourceManager.cs" />
     <Compile Include="Assets\KinectView\Scripts\Particle1.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Assets\Plugins\x86\NuiDatabase\Expression\NuiExpressionModelManifest.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\AAMModel\Map2D3D_F.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\AAMModel\Map2D3D_HLP.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\AAMModel\Map2D3D_HRP.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\EvalModel\Front.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\EvalModel\left.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\EvalModel\right.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\MouthModel\MeanShapes.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\MouthModel\close.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\MouthModel\lopen.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\SkintoneModel\skintone_appearance_classifier.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\SkintoneModel\skintone_shape_classifier.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\ViewModel\front.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\ViewModel\left.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\ViewModel\right.p.txt" />
+    <None Include="Assets\Plugins\x86\NuiDatabase\HDFaceTracker\WholeHeadModel\FullHeadMaskVertexCorrespondence.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\Expression\NuiExpressionModelManifest.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\AAMModel\Map2D3D_F.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\AAMModel\Map2D3D_HLP.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\AAMModel\Map2D3D_HRP.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\EvalModel\Front.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\EvalModel\left.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\EvalModel\right.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\MouthModel\MeanShapes.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\MouthModel\close.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\MouthModel\lopen.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\SkintoneModel\skintone_appearance_classifier.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\SkintoneModel\skintone_shape_classifier.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\ViewModel\front.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\ViewModel\left.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\ViewModel\right.p.txt" />
+    <None Include="Assets\Plugins\x86_64\NuiDatabase\HDFaceTracker\WholeHeadModel\FullHeadMaskVertexCorrespondence.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

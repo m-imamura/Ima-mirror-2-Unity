@@ -39,12 +39,7 @@ public class Points : MonoBehaviour {
     private ushort[] DepthDATA;
     private int depth_width;
     private int depth_height;
-
-    // Bone
-    private CameraSpacePoint[] BonePOINTS;
-    private int BONES = 24;
-    private int JOINTS = 25;
-
+    
     // Camera
     private CameraSpacePoint[] CameraSpacePOINTS;
 
@@ -54,8 +49,10 @@ public class Points : MonoBehaviour {
     // Particles
     public ParticleSystem.Particle[] particles;
     public int particle_Max = 100;
-    public float particle_Size = 1f;
-    public int particle_density = 4; // パーティクル密度．何個間引くか．1以上整数
+    public float particle_Size = 0.3f;
+    public int particle_density = 1; // パーティクル密度．何個間引くか．1以上整数
+
+    private ParticleSystem.Particle[] particles_no; // off用パーティクル
 
 
     // Use this for initialization
@@ -118,6 +115,11 @@ public class Points : MonoBehaviour {
             particles[i].startSize = 0;
             particles[i].startColor = Color.black;
         }
+        //off用パーティクル
+        particles_no = new ParticleSystem.Particle[1];
+        particles_no[0].position = new Vector3(0, 0, 0);
+        particles_no[0].startSize = 0;
+        particles_no[0].startColor = Color.clear;
     }
 	
 	// Update is called once per frame
@@ -199,6 +201,10 @@ public class Points : MonoBehaviour {
         particles[0].startSize = 10f;
         particles[0].startColor = Color.yellow;
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+    }
+
+    public void hide_trans_points() {
+        GetComponent<ParticleSystem>().SetParticles(particles_no, particles_no.Length);
     }
 
     public void clear_points() {

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Windows.Kinect;
 
-public class Background : MonoBehaviour {
+public class Background : MonoBehaviour
+{
 
     // 背景の情報
     public UnityEngine.Vector4[] points;
@@ -16,7 +17,7 @@ public class Background : MonoBehaviour {
     // Multi
     public GameObject MultiSourceManager; // MaltiSourceMagagerがアタッチされているオブジェクト
     private MultiSourceManager _MultiManager; // ↑のスクリプトを格納
-    
+
     // Color
     private Texture2D ColorDATA; // 色を取るためのテクスチャ
     private ColorSpacePoint[] ColorSpacePOINTS; // cameraやdepthとマッピングするため
@@ -27,7 +28,7 @@ public class Background : MonoBehaviour {
     private ushort[] DepthDATA;
     private int depth_width;
     private int depth_height;
-    
+
     // Camera
     private CameraSpacePoint[] CameraSpacePOINTS;
 
@@ -46,8 +47,9 @@ public class Background : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start () {
-        
+    void Start()
+    {
+
         points = new UnityEngine.Vector4[particle_Max];
         points_color = new Color32[particle_Max];
 
@@ -98,17 +100,13 @@ public class Background : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
-        if (background_switch)
-        {
-            view_background();
-        }
-        else {
-            no_background();
-                }
-	}
+    void Update()
+    {
 
-    public void get_background_data() {
+    }
+
+    public void get_background_data()
+    {
 
         if (_MultiManager == null)
         {
@@ -163,7 +161,8 @@ public class Background : MonoBehaviour {
         return;
     }
 
-    public void view_background() {
+    public void view_background()
+    {
 
         for (int p = 0; p < points_num; p++)
         {
@@ -174,18 +173,8 @@ public class Background : MonoBehaviour {
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
     }
 
-    public void no_background() {
+    public void off_background()
+    {
         GetComponent<ParticleSystem>().SetParticles(particles_no, particles_no.Length);
     }
-
-    public void on_background()
-    {
-        background_switch = true;
-    }
-
-    public void off_background() {
-        background_switch = false;
-        Debug.Log("off");
-    }
-
 }

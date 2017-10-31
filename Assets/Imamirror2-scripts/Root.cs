@@ -15,11 +15,6 @@ public class Root : MonoBehaviour {
     // Kinectセンサー
     private KinectSensor _Sensor;
     
-
-    // Multi
-    public GameObject MultiSourceManager; // MaltiSourceMagagerがアタッチされているオブジェクト
-    private MultiSourceManager _MultiManager; // ↑のスクリプトを格納
-
     // Body
     public GameObject BodySourceManager;
     private BodySourceManager _BodyManager;
@@ -40,14 +35,7 @@ public class Root : MonoBehaviour {
         {
             return;
         }
-
-        // MultiSourceManagerのスクリプト取得
-        _MultiManager = MultiSourceManager.GetComponent<MultiSourceManager>();
-        if (_MultiManager == null)
-        {
-            return;
-        }
-
+        
         // BodySourceManagerのスクリプト取得
         _BodyManager = BodySourceManager.GetComponent<BodySourceManager>();
         if (_BodyManager == null)
@@ -131,14 +119,8 @@ public class Root : MonoBehaviour {
     }
 
     // 初期データを取る
-    public void get_init_data()
+    public void get_init_data() // "Start"ボタンで呼び出される．自分と入れ替えなのでもう使っていない．
     {
-        // Multiデータ取得
-        if (_MultiManager == null)
-        {
-            return;
-        }
-
         // Bodyデータ取得
         if (_BodyManager == null)
         {
@@ -149,12 +131,7 @@ public class Root : MonoBehaviour {
         {
             return;
         }
-
-        // めも　bodyを基準に構築する．認識範囲を狭める
-
-        // データのクリア?
-
-
+        
         // すべてのbodyについて繰り返し
         for (int body = 0; body < BODY_MAX; body++)
         {
@@ -166,7 +143,7 @@ public class Root : MonoBehaviour {
                     Debug.Log("body " + body + " exist");
                     HumanObject[body].GetComponent<Human>().shape_num = body;
                     HumanObject[body].GetComponent<Human>().actor_num = body;
-                    HumanObject[body].GetComponent<Human>().set_init_data(body, body);
+                    HumanObject[body].GetComponent<Human>().set_init_data(body, body, 0);
                 }
             }
             else
@@ -178,11 +155,17 @@ public class Root : MonoBehaviour {
     }
 
     // ハイタッチで入れ替わる
-    public void hightouch_exchange(int shape, int actor) {
-        //Debug.Log("exchange " + shape + " -> " + actor);
-        human_script[shape].shape_num = shape;
-        human_script[shape].actor_num = actor;
-        human_script[shape].set_init_data(shape, actor);
+    public void hightouch_exchange(int shape, int actor, int pose) {
+
+        // 初回はshapeとactorの番号を入れる
+        if (human_script[shape].shape_num != shape || human_script[shape].actor_num != actor) {
+            human_script[shape].shape_num = shape;
+            human_script[shape].actor_num = actor;
+        }
+
+        // 二回目以降はこれだけ実行される
+        human_script[shape].set_init_data(shape, actor, pose);
+
         return;
     }
 
@@ -207,7 +190,7 @@ public class Root : MonoBehaviour {
 
         // 指定されたプレボディにactorを割り当てる
         human_script_body[pre_body].actor_num = actor;
-        human_script_body[pre_body].set_init_data(-1, actor);
+        human_script_body[pre_body].set_init_data(-1, actor, 0);
         Debug.Log("set_pre_body_actor " + pre_body + " -> " + actor);
         
         return true;
