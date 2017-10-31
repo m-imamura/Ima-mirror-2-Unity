@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using Kinect = Windows.Kinect;
 
+
+// Shape_Bone,Points,Actor_Bonesのデータから1人分の入れ替え映像をつくるスクリプト．
+// 1人分のShape_Bone(複数),Points(複数),Actor_Bones(単一)のデータを保持している．
+
 public class Human : MonoBehaviour {
 
     // mode
@@ -13,15 +17,16 @@ public class Human : MonoBehaviour {
     private int JOINTS = 25;
 
     // Bones・Points情報
-    private Bones[] shape_bones;// shape（固定）
-    private Bones actor_bones;// actor（更新）
-    private Points[] shape_points;// points情報（shapeのもの，固定）
+    private Bones actor_bones; // 動作ユーザの骨格情報（毎フレーム更新）
+    private Bones[] shape_bones; // 形状ユーザの骨格情報（固定，複数）
+    private Points[] shape_points; // 形状ユーザの点群情報（固定，複数）
+    private int SHAPE_BODY_MAX = 2; // 形状ユーザの骨格と点群の組の数
 
     // 変換元と変換先の番号
     public int shape_num = -1;
     public int actor_num = -1;
 
-    // 交換済みフラグ
+    // 交換済みフラグ．これがtrueなら毎フレーム入れ替え映像をつくる．
     public bool ready = false;
 
     // 行列変換スクリプト
@@ -30,21 +35,25 @@ public class Human : MonoBehaviour {
     // ボーン用particle
     public ParticleSystem.Particle[] particles;
 
-
     // mapper
     private Kinect.CoordinateMapper mapper;
 
+    // eye_level
+    public Vector3 eye_level;
+
     // Use this for initialization
     void Start() {
-        shape_bones = new Bones[2];
-        shape_points = new Points[2];
-        for (int i=0; i<2; i++) {
+        shape_bones = new Bones[SHAPE_BODY_MAX];
+        shape_points = new Points[SHAPE_BODY_MAX];
+        for (int i=0; i< SHAPE_BODY_MAX; i++) {
             shape_bones[i] = new Bones();
             shape_points[i] = new Points();
         }
         actor_bones = new Bones();
         trans = new Transformation();
 
+        // Shape側の骨格情報と点群情報の組
+        // Unity側ではHumanオブジェクトの下に欲しい数だけオブジェクトの組を追加していく．
         GameObject shape_bones_obj = transform.Find("Shape_Bones").gameObject;
         shape_bones[0] = shape_bones_obj.GetComponent<Bones>();
 
@@ -56,14 +65,15 @@ public class Human : MonoBehaviour {
 
         GameObject shape_points_obj_1 = transform.Find("Points_1").gameObject;
         shape_points[1] = shape_points_obj_1.GetComponent<Points>();
-
+        ////////////////////////////////////////////////////////////////////////////////
 
         GameObject actor_bones_obj = transform.Find("Actor_Bones").gameObject;
         actor_bones = actor_bones_obj.GetComponent<Bones>();
 
         GameObject trans_obj = transform.Find("Transformation").gameObject;
         trans = trans_obj.GetComponent<Transformation>();
-
+        
+        // Bone表示用パーティクルを生成
         particles = new ParticleSystem.Particle[BONES];
         for (int i = 0; i < BONES; i++)
         {
@@ -81,28 +91,37 @@ public class Human : MonoBehaviour {
 	void Update () {
         if (ready)
         {
-            int pose_num = actor_bones.set_bones_data(actor_num);// actorのボーン情報を取得
-            Debug.Log("pose_num "+pose_num);
-
-            get_translate_body(pose_num);                 // get_translate_body
+            // actorの姿勢から，shapeはどのセットを利用するか決定する．
+            int pose_num = actor_bones.set_bones_data(actor_num); 
+            
+            // 全ポーズの点群を隠す
+            for (int i=0; i< SHAPE_BODY_MAX; i++) {
+                shape_points[i].hide_trans_points();
+            }
+            
+            get_translate_body(pose_num);
             shape_points[pose_num].view_trans_points();
             
         }
     }
 
-    public void set_init_data(int shape, int actor, int pose) { // 実質Start()
-                                                      // shape_num = shape;
-                                                      // actor_num = actor;
+    public void set_init_data(int shape, int actor, int pose) {
 
-        if (!pre_body_mode) // プレ身体モードでないとき
+        if (!pre_body_mode) // プレ身体モードでないときは身体形状の骨格情報と点群情報も取得する
         {
             Debug.Log("ハイタッチモード");
             shape_bones[pose].set_bones_init_data(shape_num);
             shape_points[pose].set_points_data(shape_num);
-        }
-        actor_bones.set_bones_init_data(actor_num); //?
 
-        actor_bones.set_bones_data(actor_num);
+            if (!ready) { // 初回に限り全部の骨格情報と点群情報の組に現在取得したデータを入れる
+                for (int i = 0; i < SHAPE_BODY_MAX; i++) { 
+                    shape_bones[i].set_bones_init_data(shape_num);
+                    shape_points[i].set_points_data(shape_num);
+                }
+            }
+        }
+        actor_bones.set_bones_init_data(actor_num);
+        //actor_bones.set_bones_data(actor_num); // 要らないかも？
 
         ready = true;
 
@@ -111,15 +130,13 @@ public class Human : MonoBehaviour {
     }
 
     private void get_translate_body(int pose_num) {
-
-        Debug.Log("ポーズ" + pose_num +  "点群の数は" + shape_points[pose_num].points_num);
         
         // shapeの身体でactorの姿勢のときのbottomを計算
         Vector4[] new_bottom = new Vector4[BONES];
         for (int b = 0; b < BONES; b++)
         {
             new_bottom[b] = new Vector4( 0.0f, 0.0f, 0.0f, 1.0f);
-            int parent = shape_bones[0].connect_parent[b]; // 接続関係なのでactor_boneでもOK
+            int parent = shape_bones[0].connect_parent[b]; // ボーンの親子（接続）関係なのでactor_boneでもOK
 
             if (parent == -1)
             {
@@ -132,10 +149,14 @@ public class Human : MonoBehaviour {
                 new_bottom[b] = new_bottom[parent] + shape_bones[pose_num].length[parent] * actor_bones.vector[parent];
                 new_bottom[b].w = 1.0f; // w値は直す
             }
-
-            // テスト
-            //particles[b].position = new Vector3(new_bottom[b].x *10f, new_bottom[b].y*10f, new_bottom[b].z*10f);
+            
         }
+
+        // 目線の位置 // HMDで使えるか？ただし目線方向はない
+        eye_level = new_bottom[3] + shape_bones[pose_num].length[3] * actor_bones.vector[3];
+        eye_level.z *= -1;
+
+
         // new_bottomをパーティクルで表示
         //GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
 
@@ -214,8 +235,8 @@ public class Human : MonoBehaviour {
             shape_points[pose_num].points[p].z /= shape_points[pose_num].points[p].w;
             shape_points[pose_num].points[p].w /= shape_points[pose_num].points[p].w;
         }
-        
-        
+
+        return;
     }
 
     public void clear_data()
@@ -229,6 +250,8 @@ public class Human : MonoBehaviour {
         actor_num = -1;
         shape_num = -1;
         ready = false;
+
+        return;
     }
 
     public void clear_data_pre() {
@@ -236,5 +259,7 @@ public class Human : MonoBehaviour {
         shape_points[0].clear_points_pre(); // preのパーティクルは0番しかないため．
         actor_num = -1;
         ready = false;
+
+        return;
     }
 }

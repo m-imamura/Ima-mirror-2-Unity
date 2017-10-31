@@ -15,11 +15,6 @@ public class Root : MonoBehaviour {
     // Kinectセンサー
     private KinectSensor _Sensor;
     
-
-    // Multi
-    public GameObject MultiSourceManager; // MaltiSourceMagagerがアタッチされているオブジェクト
-    private MultiSourceManager _MultiManager; // ↑のスクリプトを格納
-
     // Body
     public GameObject BodySourceManager;
     private BodySourceManager _BodyManager;
@@ -40,14 +35,7 @@ public class Root : MonoBehaviour {
         {
             return;
         }
-
-        // MultiSourceManagerのスクリプト取得
-        _MultiManager = MultiSourceManager.GetComponent<MultiSourceManager>();
-        if (_MultiManager == null)
-        {
-            return;
-        }
-
+        
         // BodySourceManagerのスクリプト取得
         _BodyManager = BodySourceManager.GetComponent<BodySourceManager>();
         if (_BodyManager == null)
@@ -131,14 +119,8 @@ public class Root : MonoBehaviour {
     }
 
     // 初期データを取る
-    public void get_init_data()
+    public void get_init_data() // "Start"ボタンで呼び出される．自分と入れ替えなのでもう使っていない．
     {
-        // Multiデータ取得
-        if (_MultiManager == null)
-        {
-            return;
-        }
-
         // Bodyデータ取得
         if (_BodyManager == null)
         {
@@ -149,12 +131,7 @@ public class Root : MonoBehaviour {
         {
             return;
         }
-
-        // めも　bodyを基準に構築する．認識範囲を狭める
-
-        // データのクリア?
-
-
+        
         // すべてのbodyについて繰り返し
         for (int body = 0; body < BODY_MAX; body++)
         {

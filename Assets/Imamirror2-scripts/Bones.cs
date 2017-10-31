@@ -88,7 +88,7 @@ public class Bones : MonoBehaviour
         joint_position = get_body_1(body_num);
         if (joint_position == joint_error_values)
         {
-            Debug.Log("set_bones_init_dataえらーばりゅー");
+            Debug.Log("set_bones_init_data　エラー");
             return;
         }
 
@@ -120,7 +120,7 @@ public class Bones : MonoBehaviour
         joint_position = get_body_1(body_num);
         if (joint_position == joint_error_values)
         {
-            Debug.Log("set_bones_dataえらーばりゅー");
+            Debug.Log("set_bones_data　エラー");
             return -1;
         }
 
@@ -141,9 +141,10 @@ public class Bones : MonoBehaviour
         }
 
         /*ポーズ判定*/
-        // 肩のベクトルで判断
-        if (vector[5].y > 0 && vector[11].y > 0)
-            return 1;
+        if (vector[5].y > 0 && vector[11].y > 0) // 肩のベクトルで判断
+            return 1; // ポーズ
+        else if (false) // 他の条件があればここで． 
+            return 2;
         else
             return 0;
     }
