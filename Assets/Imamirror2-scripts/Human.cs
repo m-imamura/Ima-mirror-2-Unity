@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Kinect = Windows.Kinect;
-
-
-// Shape_Bone,Points,Actor_Bonesのデータから1人分の入れ替え映像をつくるスクリプト．
-// 1人分のShape_Bone(複数),Points(複数),Actor_Bones(単一)のデータを保持している．
+using System; // try-catch
 
 public class Human : MonoBehaviour {
 
-    // mode
+    // 予め用意した身体形状を使用する場合
     public bool pre_body_mode = false;
 
     // define
@@ -60,16 +57,33 @@ public class Human : MonoBehaviour {
         GameObject shape_points_obj = transform.Find("Points").gameObject;
         shape_points[0] = shape_points_obj.GetComponent<Points>();
 
-        GameObject shape_bones_obj_1 = transform.Find("Shape_Bones_1").gameObject;
-        shape_bones[1] = shape_bones_obj_1.GetComponent<Bones>();
+        for (int i = 1; i < SHAPE_BODY_MAX; i++) {
 
-        GameObject shape_points_obj_1 = transform.Find("Points_1").gameObject;
-        shape_points[1] = shape_points_obj_1.GetComponent<Points>();
-        ////////////////////////////////////////////////////////////////////////////////
+            GameObject shape_bones_obj_i;
+            try {
+                shape_bones_obj_i = transform.Find("Shape_Bones_" + i).gameObject;
+                shape_bones[i] = shape_bones_obj_i.GetComponent<Bones>();
+            } catch {
+                // オブジェクトがない場合（pre_bodyなど）
+                shape_bones[i] = shape_bones[0];
+                Debug.Log("Shape_Bones_" + i + "オブジェクトがないので他のshape_bonesで代用しました．");
+            }
+            
+            GameObject shape_points_obj_i;
+            try {
+                shape_points_obj_i = transform.Find("Points_" + i).gameObject;
+                shape_points[i] = shape_points_obj_i.GetComponent<Points>();
+            }catch {
+                shape_points[i] = shape_points[0];
+                Debug.Log("Shape_Points_" + i + "オブジェクトがないので他のshape_pointsで代用しました．");
+            }
+        }
 
+        // Actor側の骨格情報
         GameObject actor_bones_obj = transform.Find("Actor_Bones").gameObject;
         actor_bones = actor_bones_obj.GetComponent<Bones>();
 
+        // 演算用
         GameObject trans_obj = transform.Find("Transformation").gameObject;
         trans = trans_obj.GetComponent<Transformation>();
         
@@ -95,9 +109,8 @@ public class Human : MonoBehaviour {
             int pose_num = actor_bones.set_bones_data(actor_num); 
             
             // 全ポーズの点群を隠す
-            for (int i=0; i< SHAPE_BODY_MAX; i++) {
+            for (int i=0; i< SHAPE_BODY_MAX; i++)
                 shape_points[i].hide_trans_points();
-            }
             
             get_translate_body(pose_num);
             shape_points[pose_num].view_trans_points();
@@ -107,7 +120,7 @@ public class Human : MonoBehaviour {
 
     public void set_init_data(int shape, int actor, int pose) {
 
-        if (!pre_body_mode) // プレ身体モードでないときは身体形状の骨格情報と点群情報も取得する
+        if (!pre_body_mode) // ハイタッチモードでは身体形状の骨格情報と点群情報も取得する
         {
             Debug.Log("ハイタッチモード");
             shape_bones[pose].set_bones_init_data(shape_num);
@@ -122,11 +135,10 @@ public class Human : MonoBehaviour {
         }
         actor_bones.set_bones_init_data(actor_num);
         //actor_bones.set_bones_data(actor_num); // 要らないかも？
-
-        ready = true;
-
+        
         Debug.Log("set_init_data(" + shape_num + ", " + actor_num + ")");
-
+        ready = true;
+        return;
     }
 
     private void get_translate_body(int pose_num) {
@@ -242,7 +254,7 @@ public class Human : MonoBehaviour {
     public void clear_data()
     {
         Debug.Log("clear" + shape_num);
-        for (int i =0;i<2; i++) {
+        for (int i =0;i<SHAPE_BODY_MAX; i++) {
             shape_points[i].clear_points();
             shape_bones[i].clear_bones();
         }
@@ -256,7 +268,10 @@ public class Human : MonoBehaviour {
 
     public void clear_data_pre() {
         Debug.Log("clear_data_pre");
-        shape_points[0].clear_points_pre(); // preのパーティクルは0番しかないため．
+
+        for (int i = 0; i < SHAPE_BODY_MAX; i++)
+            shape_points[i].clear_points_pre();
+
         actor_num = -1;
         ready = false;
 

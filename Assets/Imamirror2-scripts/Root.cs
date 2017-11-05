@@ -5,12 +5,12 @@ using Windows.Kinect;
 
 public class Root : MonoBehaviour {
 
+    // 実験で使用した「あらかじめ用意された身体を使うモード」
     public bool pre_body_mode = true;
 
     // define
-    private int BODY_MAX = 6;
-
     public int PRE_BODY_NUM = 0;
+    private int BODY_MAX = 6;
 
     // Kinectセンサー
     private KinectSensor _Sensor;
@@ -26,22 +26,26 @@ public class Root : MonoBehaviour {
     public Human[] human_script;
     public Human[] human_script_body;
 
+    // ポーズ認識用
+    public GameObject _hightouch_object;
+    private HighTouch _hightouch_script;
+
     // Use this for initialization
     void Start () {
 
         // センサーを取得
         _Sensor = KinectSensor.GetDefault();
         if (_Sensor == null)
-        {
             return;
-        }
         
         // BodySourceManagerのスクリプト取得
         _BodyManager = BodySourceManager.GetComponent<BodySourceManager>();
         if (_BodyManager == null)
-        {
             return;
-        }
+
+        _hightouch_script = _hightouch_object.GetComponent<HighTouch>();
+        if (_hightouch_script == null)
+            return;
         
         // プレ人体モードの初期化
         human_script_body = new Human[PRE_BODY_NUM];
@@ -79,23 +83,6 @@ public class Root : MonoBehaviour {
 
         if (pre_body_mode) // プレボディモード
         {
-            // プレボディにactorをあてがう
-            //for (int i = 0; i < BODY_MAX; i++) // Kinectが認識できる人体の数だけ
-            //{
-            //    if (body_data[i].IsTracked) // 人体がトラッキングできていたら
-            //    {
-            //        //Debug.Log("body_"+i+" is Tracking");
-            //        for (int j = 0; j < PRE_BODY_NUM; j++) // プレ身体の数だけ
-            //        {
-            //            if (human_script_body[j].ready == false)
-            //            {
-            //                human_script_body[j].actor_num = i;
-            //                human_script_body[j].set_init_data(-1, i);
-            //                Debug.Log("human_script_body[ " + j + " ].set_init_data(-2, " + i + ")");
-            //            }
-            //        }
-            //    }
-            //}
             for (int i = 0; i < PRE_BODY_NUM; i++) // actorを追跡できなくなったデータをクリア
             {
                 int act = human_script_body[i].actor_num;
@@ -117,41 +104,30 @@ public class Root : MonoBehaviour {
             }
         }
     }
-
-    // 初期データを取る
-    public void get_init_data() // "Start"ボタンで呼び出される．自分と入れ替えなのでもう使っていない．
+    
+    // "Start"ボタンで呼び出される．自分と入れ替え．
+    public void get_init_data() 
     {
-        // Bodyデータ取得
         if (_BodyManager == null)
-        {
             return;
-        }
+
         Body[] body_data = _BodyManager.GetData();
         if (body_data == null)
-        {
             return;
-        }
         
         // すべてのbodyについて繰り返し
         for (int body = 0; body < BODY_MAX; body++)
         {
-            // bodyがあり，追跡できており，
+            // bodyがあり，追跡できている．
             if (body_data[body] != null && body_data[body].IsTracked == true)
             {
-                if (true)
-                { // 深度やポーズの条件
-                    Debug.Log("body " + body + " exist");
-                    HumanObject[body].GetComponent<Human>().shape_num = body;
-                    HumanObject[body].GetComponent<Human>().actor_num = body;
-                    HumanObject[body].GetComponent<Human>().set_init_data(body, body, 0);
-                }
-            }
-            else
-            {
-                // humanデータをクリア?
-                Debug.Log("ないよ-");
+                int pose_num = _hightouch_script.pose_decision(body_data[body]);
+                HumanObject[body].GetComponent<Human>().shape_num = body; // ←shapeとactorが同じなので
+                HumanObject[body].GetComponent<Human>().actor_num = body; // ←入れ替えなし
+                HumanObject[body].GetComponent<Human>().set_init_data(body, body, pose_num); 
             }
         }
+        return;
     }
 
     // ハイタッチで入れ替わる

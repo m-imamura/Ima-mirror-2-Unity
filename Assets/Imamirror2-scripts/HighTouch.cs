@@ -21,6 +21,7 @@ public class HighTouch : MonoBehaviour {
     private int JOINTS = 25;
 
     // メインのシステムを取得
+    public GameObject _root_object;
     private Root _root_script;
 
     public float hand_to_hand_distance = 0.15f; // 単位はm
@@ -28,32 +29,17 @@ public class HighTouch : MonoBehaviour {
     // 1人用か2人用か
     // 一人でデバッグするときのため
     public bool can_1_person = false;
-
-
-    // Particle system
-    public  GameObject particle_object;
-    private ParticleSystem particle_system;
-
-
+    
     // Use this for initialization
     void Start () {
 		
-        // Managerからデータをとる
-        if (BodySourceManager == null)
-        {
-            return;
-        }
-
         _BodyManager = BodySourceManager.GetComponent<BodySourceManager>();
         if (_BodyManager == null)
-        {
             return;
-        }
 
-        _root_script = GetComponent<Root>();
-        
-        // エフェクト用パーティクルを作る
-        particle_system = particle_object.GetComponent<ParticleSystem>();
+        _root_script = _root_object.GetComponent<Root>();
+        if (_root_script == null)
+            return;
     }
 
     // Update is called once per frame
@@ -62,16 +48,12 @@ public class HighTouch : MonoBehaviour {
         {
 
             if (_BodyManager == null)
-            {
                 return;
-            }
 
             // data[]に全部の骨格情報を取得する
             Windows.Kinect.Body[] data = _BodyManager.GetData();
             if (data == null)
-            {
                 return;
-            }
 
             int hand_num = 6 * 2; // 人数×手の数
             UnityEngine.Vector3[] hand_position = new UnityEngine.Vector3[hand_num];
@@ -120,9 +102,6 @@ public class HighTouch : MonoBehaviour {
                         int pose2 = pose_decision(data[body2]);
                         _root_script.hightouch_exchange(body2, body1, pose2);
                         
-                        // エフェクト
-                        //particle_object.transform.position = hand_position[i];
-                        //particle_system.Play();
                     }
                 }
             }
@@ -131,21 +110,19 @@ public class HighTouch : MonoBehaviour {
     }
 
     // ポーズ判定
-    private int pose_decision(Body _data) {
+    public int pose_decision(Body _data) {
         int pose_num = 0;
         
         // 両腕が上を向いてるという判定(肩回りの改善)
         float LeftShoul_vec1 = _data.Joints[JointType.ElbowLeft].Position.Y - _data.Joints[JointType.ShoulderLeft].Position.Y;
         float RightShoul_vec1 = _data.Joints[JointType.ElbowRight].Position.Y - _data.Joints[JointType.ShoulderRight].Position.Y;
         if (LeftShoul_vec1 > 0 && RightShoul_vec1 > 0)
-        {
             pose_num = 1;
-        }
 
         // 他の判定が欲しければここでつくる．
-        if (false) {
+        if (false) 
             pose_num = 2;
-        }
+
         Debug.Log("ポーズ " + pose_num + "と判定");
 
         return pose_num;

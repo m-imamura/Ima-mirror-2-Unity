@@ -13,13 +13,11 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile>
-    </CompilerResponseFile>
+    <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.6.1f1</UnityVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -87,8 +85,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Imamirror2-scripts\Background.cs" />
-    <Compile Include="Assets\Imamirror2-scripts\BodyIndexSourceManager.cs" />
-    <Compile Include="Assets\Imamirror2-scripts\BodyIndexView.cs" />
     <Compile Include="Assets\Imamirror2-scripts\Bones.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonBackgroundScript.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonBodyscript.cs" />
@@ -100,6 +96,8 @@
     <Compile Include="Assets\Imamirror2-scripts\Points.cs" />
     <Compile Include="Assets\Imamirror2-scripts\Root.cs" />
     <Compile Include="Assets\Imamirror2-scripts\Transformation.cs" />
+    <Compile Include="Assets\KinectView\Scripts\BodyIndexSourceManager.cs" />
+    <Compile Include="Assets\KinectView\Scripts\BodyIndexView.cs" />
     <Compile Include="Assets\KinectView\Scripts\BodySourceManager.cs" />
     <Compile Include="Assets\KinectView\Scripts\BodySourceView.cs" />
     <Compile Include="Assets\KinectView\Scripts\ColorSourceManager.cs" />
@@ -110,7 +108,6 @@
     <Compile Include="Assets\KinectView\Scripts\InfraredSourceManager.cs" />
     <Compile Include="Assets\KinectView\Scripts\InfraredSourceView.cs" />
     <Compile Include="Assets\KinectView\Scripts\MultiSourceManager.cs" />
-    <Compile Include="Assets\KinectView\Scripts\Particle1.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Plugins\x86\NuiDatabase\Expression\NuiExpressionModelManifest.txt" />

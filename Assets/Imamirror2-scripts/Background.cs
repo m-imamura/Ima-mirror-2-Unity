@@ -5,7 +5,6 @@ using Windows.Kinect;
 
 public class Background : MonoBehaviour
 {
-
     // 背景の情報
     public UnityEngine.Vector4[] points;
     public Color32[] points_color;
@@ -37,11 +36,11 @@ public class Background : MonoBehaviour
 
     // Particles
     public ParticleSystem.Particle[] particles;
-    public int particle_Max = 10000;
-    public float particle_Size = 2f;
-    public int particle_density = 4; // パーティクル密度．何個間引くか．1以上整数
+    public int particle_Max = 10000; // パーティクルの最大個数
+    public float particle_Size = 2f; // パーティクルのサイズ
+    public int particle_density = 4; // パーティクルの密度．1が全く間引かない
 
-    private ParticleSystem.Particle[] particles_no;
+    private ParticleSystem.Particle[] particles_no; // 非表示用パーティクル
 
     private bool background_switch = true;
 
@@ -49,7 +48,6 @@ public class Background : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
         points = new UnityEngine.Vector4[particle_Max];
         points_color = new Color32[particle_Max];
 
@@ -91,7 +89,7 @@ public class Background : MonoBehaviour
             particles[i].startSize = 0;
             particles[i].startColor = Color.black;
         }
-        //off用パーティクル
+        // 非表示用パーティクル
         particles_no = new ParticleSystem.Particle[1];
         particles_no[0].position = new Vector3(0, 0, 0);
         particles_no[0].startSize = 0;
@@ -105,13 +103,11 @@ public class Background : MonoBehaviour
 
     }
 
+    // 背景を取得する
     public void get_background_data()
     {
-
         if (_MultiManager == null)
-        {
             return;
-        }
 
         // 各種データを取得
         ColorDATA = _MultiManager.GetColorTexture();
@@ -140,12 +136,7 @@ public class Background : MonoBehaviour
                     int color_x = (int)ColorSpacePOINTS[index].X;
                     int color_y = (int)ColorSpacePOINTS[index].Y;
                     Color32 color = ColorDATA.GetPixel(color_x, color_y);
-
-                    // パーティクルに代入
-                    //particles[particle_count].position = new Vector3(p_x *10f, p_y * 10f, p_z * 10f);
-                    //particles[particle_count].startSize = particle_Size;
-                    //particles[particle_count].startColor = color;
-
+                    
                     // 初期点データに代入
                     points[particle_count].x = p_x;
                     points[particle_count].y = p_y;
@@ -161,9 +152,9 @@ public class Background : MonoBehaviour
         return;
     }
 
+    // 背景を表示する
     public void view_background()
     {
-
         for (int p = 0; p < points_num; p++)
         {
             particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
@@ -171,10 +162,13 @@ public class Background : MonoBehaviour
             particles[p].startColor = points_color[p];
         }
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+        return;
     }
 
+    // 背景を非表示にする
     public void off_background()
     {
         GetComponent<ParticleSystem>().SetParticles(particles_no, particles_no.Length);
+        return;
     }
 }
