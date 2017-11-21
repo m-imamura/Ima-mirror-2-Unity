@@ -19,6 +19,9 @@ public class Human : MonoBehaviour {
     private Points[] shape_points; // 形状ユーザの点群情報（固定，複数）
     private int SHAPE_BODY_MAX = 2; // 形状ユーザの骨格と点群の組の数
 
+    // Matrix情報
+    private Matrix4x4[][] M_inverse;
+
     // 変換元と変換先の番号
     public int shape_num = -1;
     public int actor_num = -1;
@@ -42,9 +45,14 @@ public class Human : MonoBehaviour {
     void Start() {
         shape_bones = new Bones[SHAPE_BODY_MAX];
         shape_points = new Points[SHAPE_BODY_MAX];
+        M_inverse = new Matrix4x4[SHAPE_BODY_MAX][];
         for (int i=0; i< SHAPE_BODY_MAX; i++) {
             shape_bones[i] = new Bones();
             shape_points[i] = new Points();
+            M_inverse[i] = new Matrix4x4[BONES];
+            for (int j = 0; j < BONES; j++) {
+                M_inverse[i][j] = new Matrix4x4();
+            }
         }
         actor_bones = new Bones();
         trans = new Transformation();
@@ -125,11 +133,13 @@ public class Human : MonoBehaviour {
             Debug.Log("ハイタッチモード");
             shape_bones[pose].set_bones_init_data(shape_num);
             shape_points[pose].set_points_data(shape_num);
+            set_Matrix_M(pose); // ここでMatrixM-1の計算と保存をする．
 
             if (!ready) { // 初回に限り全部の骨格情報と点群情報の組に現在取得したデータを入れる
                 for (int i = 0; i < SHAPE_BODY_MAX; i++) { 
                     shape_bones[i].set_bones_init_data(shape_num);
                     shape_points[i].set_points_data(shape_num);
+                    set_Matrix_M(i); // ここでMatrixM-1の計算と保存をする．
                 }
             }
         }
@@ -138,6 +148,37 @@ public class Human : MonoBehaviour {
         
         Debug.Log("set_init_data(" + shape_num + ", " + actor_num + ")");
         ready = true;
+        return;
+    }
+
+    private void set_Matrix_M(int pose_num) {
+
+        for (int b = 0; b < BONES; b++)
+        {
+            // 変換行列の全体
+            Matrix4x4 M_matrix; // M_matrixを最初に求めておくと計算回数が少なくなるはず．
+            
+            // 変換行列の部分
+            Matrix4x4 M_transrate;
+            Matrix4x4 M_rotate;
+
+            // 基本のベクトル
+            Vector4 unit_vector = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+
+            // 行列 M の部分を求める
+            M_transrate = trans.transrate(shape_bones[pose_num].bottom_init[b]);
+            M_rotate = trans.rotate(unit_vector, shape_bones[pose_num].vector_init[b]);
+
+            // 初期ボーンのノルムを求める
+            float vi_norm = shape_bones[pose_num].length[b];
+            //float vi_norm = shape_bones.length[b];
+            Matrix4x4 vi_norm_mat = Matrix4x4.identity;
+            vi_norm_mat.m00 = vi_norm_mat.m11 = vi_norm_mat.m22 = vi_norm_mat.m33 = vi_norm;
+
+            // 行列 M の全体を求める
+            M_matrix = vi_norm_mat * M_transrate * M_rotate;
+            M_inverse[pose_num][b] = M_matrix.inverse;
+        }
         return;
     }
 
@@ -198,13 +239,13 @@ public class Human : MonoBehaviour {
                     w_matrix.m00 = w_matrix.m11 = w_matrix.m22 = w_matrix.m33 = w;
 
                     // 変換行列の全体
-                    Matrix4x4 M_matrix; // M_matrixを最初に求めておくと計算回数が少なくなるはず．
-                    Matrix4x4 M_inverse;
+                    //Matrix4x4 M_matrix; // M_matrixを最初に求めておくと計算回数が少なくなるはず．
+                    //Matrix4x4 M_inverse;
                     Matrix4x4 B_matrix;
 
                     // 変換行列の部分
-                    Matrix4x4 M_transrate;
-                    Matrix4x4 M_rotate;
+                    //Matrix4x4 M_transrate;
+                    //Matrix4x4 M_rotate;
                     Matrix4x4 B_transrate;
                     Matrix4x4 B_rotate;
 
@@ -212,18 +253,18 @@ public class Human : MonoBehaviour {
                     Vector4 unit_vector = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
 
                     // 行列 M の部分を求める
-                    M_transrate = trans.transrate(shape_bones[pose_num].bottom_init[b]);
-                    M_rotate = trans.rotate(unit_vector, shape_bones[pose_num].vector_init[b]);
+                    //M_transrate = trans.transrate(shape_bones[pose_num].bottom_init[b]);
+                    //M_rotate = trans.rotate(unit_vector, shape_bones[pose_num].vector_init[b]);
 
                     // 初期ボーンのノルムを求める
-                    float vi_norm = shape_bones[pose_num].length[b];
+                    //float vi_norm = shape_bones[pose_num].length[b];
                     //float vi_norm = shape_bones.length[b];
-                    Matrix4x4 vi_norm_mat = Matrix4x4.identity;
-                    vi_norm_mat.m00 = vi_norm_mat.m11 = vi_norm_mat.m22 = vi_norm_mat.m33 = vi_norm;
+                    //Matrix4x4 vi_norm_mat = Matrix4x4.identity;
+                    //vi_norm_mat.m00 = vi_norm_mat.m11 = vi_norm_mat.m22 = vi_norm_mat.m33 = vi_norm;
                     
                     // 行列 M の全体を求める
-                    M_matrix = vi_norm_mat * M_transrate * M_rotate;
-                    M_inverse = M_matrix.inverse;
+                    //M_matrix = vi_norm_mat * M_transrate * M_rotate;
+                    //M_inverse = M_matrix.inverse;
 
                     // 行列 B の部分を求める
                     B_rotate = trans.rotate(unit_vector, actor_bones.vector[b]);
@@ -238,7 +279,7 @@ public class Human : MonoBehaviour {
                     B_matrix = v_norm_mat * B_transrate * B_rotate;
                     
                     // 変換後の点に b 番ボーンの影響を足し合わせる
-                    shape_points[pose_num].points[p] += w_matrix * B_matrix * M_inverse * shape_points[pose_num].points_init[p];
+                    shape_points[pose_num].points[p] += w_matrix * B_matrix * M_inverse[pose_num][b] * shape_points[pose_num].points_init[p];
                     
                 }
             }

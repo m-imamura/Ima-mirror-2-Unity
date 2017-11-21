@@ -88,8 +88,10 @@
     <Compile Include="Assets\Imamirror2-scripts\Bones.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonBackgroundScript.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonBodyscript.cs" />
+    <Compile Include="Assets\Imamirror2-scripts\ButtonModeScriptIMG.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonMoodScript.cs" />
     <Compile Include="Assets\Imamirror2-scripts\ButtonStartScript.cs" />
+    <Compile Include="Assets\Imamirror2-scripts\Capture.cs" />
     <Compile Include="Assets\Imamirror2-scripts\EyelevelCamera.cs" />
     <Compile Include="Assets\Imamirror2-scripts\HighTouch.cs" />
     <Compile Include="Assets\Imamirror2-scripts\Human.cs" />
