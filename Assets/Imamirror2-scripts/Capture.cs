@@ -29,7 +29,7 @@ public class Capture : MonoBehaviour {
                 System.DateTime.Now.Hour.ToString() + "-" +
                 System.DateTime.Now.Minute.ToString() + "-" +
                 System.DateTime.Now.Second.ToString();
-            Application.CaptureScreenshot("Screenshot_" + date_time + ".png");
+            ScreenCapture.CaptureScreenshot("Screenshot_" + date_time + ".png");
             Debug.Log("スクリーンショット " + "Screenshot_" + date_time + ".png"  +  " を撮影しました");
             _audio_source.Play();
             now_capture = false;

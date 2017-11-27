@@ -127,13 +127,7 @@ public class BodyIndexView : MonoBehaviour
         bool[] actor_exixt = new bool[6];
         for (int i = 0; i < 6; i++)
             actor_exixt[i] = false;
-
-        for(int i = 0; i < 6; i++)
-        {
-            int act = _root.human_script[i].actor_num;
-            if(act != -1)
-                actor_exixt[act] = true;
-        }
+        
 
         // パーティクルをクリア
         for (int p = 0; p < particle_Max; p++)
@@ -151,7 +145,7 @@ public class BodyIndexView : MonoBehaviour
                     if (IndexDATA[index] != 255)
                     {
                         int j = IndexDATA[index];
-                        if (actor_exixt[j] == false) {
+                        if (_root.human_script[j].actor_num == -1) {
                             // Debug.Log("+ " + IndexDATA[index]);
                             // 座標取得
                             float p_x = CameraSpacePOINTS[index].X * 10;
