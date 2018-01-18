@@ -136,7 +136,7 @@ public class Human : MonoBehaviour {
     public void set_init_data(int shape, int actor, int pose) {
 
         // ここでスクリーンショットをとると取得時の形状がとれる．
-        _capthre.now_capture = true;
+        //_capthre.now_capture = true;
 
         if (!pre_body_mode) // ハイタッチモードでは身体形状の骨格情報と点群情報も取得する
         {
@@ -180,15 +180,9 @@ public class Human : MonoBehaviour {
             // 行列 M の部分を求める
             M_transrate = trans.transrate(shape_bones[pose_num].bottom_init[b]);
             M_rotate = trans.rotate(unit_vector, shape_bones[pose_num].vector_init[b]);
-
-            // 初期ボーンのノルムを求める
-            float vi_norm = shape_bones[pose_num].length[b];
-            //float vi_norm = shape_bones.length[b];
-            Matrix4x4 vi_norm_mat = Matrix4x4.identity;
-            vi_norm_mat.m00 = vi_norm_mat.m11 = vi_norm_mat.m22 = vi_norm_mat.m33 = vi_norm;
-
+            
             // 行列 M の全体を求める
-            M_matrix = /*vi_norm_mat * */M_transrate * M_rotate;
+            M_matrix = M_transrate * M_rotate;
             M_inverse[pose_num][b] = M_matrix.inverse;
         }
         return;
@@ -231,6 +225,35 @@ public class Human : MonoBehaviour {
         // new_bottomをパーティクルで表示
         //GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
 
+
+        // ここで毎フレーム形状ボーンから合成ボーンへの変換をまとめて行う．
+        Matrix4x4[] BM_matrix; // 全体の変換を格納するMatrix
+        BM_matrix = new Matrix4x4[BONES];
+
+        for (int b = 0; b < BONES; b++)
+        {
+            // 変換行列の全体
+            Matrix4x4 B_matrix;
+
+            // 変換行列の部分
+            Matrix4x4 B_transrate;
+            Matrix4x4 B_rotate;
+
+            // 基本のベクトル
+            Vector4 unit_vector = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+            
+            // 行列 B の部分を求める
+            B_rotate = trans.rotate(unit_vector, actor_bones.vector[b]);
+            B_transrate = trans.transrate(new_bottom[b]);
+            
+            // 行列 B の全体を求める
+            B_matrix = B_transrate * B_rotate;
+
+            // 変換後の点に b 番ボーンの影響を足し合わせる
+            BM_matrix[b] = B_matrix * M_inverse[pose_num][b];
+
+        }
+
         // 点群の変換
         for (int p = 0; p < shape_points[pose_num].points_num; p++)
         {
@@ -255,49 +278,9 @@ public class Human : MonoBehaviour {
                     Matrix4x4 w_matrix;
                     w_matrix = Matrix4x4.identity;
                     w_matrix.m00 = w_matrix.m11 = w_matrix.m22 = w_matrix.m33 = w;
-
-                    // 変換行列の全体
-                    //Matrix4x4 M_matrix; // M_matrixを最初に求めておくと計算回数が少なくなるはず．
-                    //Matrix4x4 M_inverse;
-                    Matrix4x4 B_matrix;
-
-                    // 変換行列の部分
-                    //Matrix4x4 M_transrate;
-                    //Matrix4x4 M_rotate;
-                    Matrix4x4 B_transrate;
-                    Matrix4x4 B_rotate;
-
-                    // 基本のベクトル
-                    Vector4 unit_vector = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-
-                    // 行列 M の部分を求める
-                    //M_transrate = trans.transrate(shape_bones[pose_num].bottom_init[b]);
-                    //M_rotate = trans.rotate(unit_vector, shape_bones[pose_num].vector_init[b]);
-
-                    // 初期ボーンのノルムを求める
-                    //float vi_norm = shape_bones[pose_num].length[b];
-                    //float vi_norm = shape_bones.length[b];
-                    //Matrix4x4 vi_norm_mat = Matrix4x4.identity;
-                    //vi_norm_mat.m00 = vi_norm_mat.m11 = vi_norm_mat.m22 = vi_norm_mat.m33 = vi_norm;
-                    
-                    // 行列 M の全体を求める
-                    //M_matrix = vi_norm_mat * M_transrate * M_rotate;
-                    //M_inverse = M_matrix.inverse;
-
-                    // 行列 B の部分を求める
-                    B_rotate = trans.rotate(unit_vector, actor_bones.vector[b]);
-                    B_transrate = trans.transrate(new_bottom[b]);
-                    
-                    // 変換後ボーンのノルムを求める
-                    float v_norm = actor_bones.length[b];
-                    Matrix4x4 v_norm_mat = Matrix4x4.identity;
-                    v_norm_mat.m00 = v_norm_mat.m11 = v_norm_mat.m22 = v_norm_mat.m33 = v_norm;
-
-                    // 行列 B の全体を求める
-                    B_matrix =/* v_norm_mat **/ B_transrate * B_rotate;
                     
                     // 変換後の点に b 番ボーンの影響を足し合わせる
-                    shape_points[pose_num].points[p] += w_matrix * B_matrix * M_inverse[pose_num][b] * shape_points[pose_num].points_init[p];
+                    shape_points[pose_num].points[p] += w_matrix * BM_matrix[b] * shape_points[pose_num].points_init[p];
                     
                 }
             }
