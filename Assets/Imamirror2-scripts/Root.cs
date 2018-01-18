@@ -171,4 +171,17 @@ public class Root : MonoBehaviour {
         
         return true;
     }
+
+    public void clear_all_shape_actor() {
+        if (!pre_body_mode)
+        {
+            for (int i = 0; i < BODY_MAX; i++)
+                human_script[i].clear_data();
+        }
+        else {
+            for (int i = 0; i < BODY_MAX; i++)
+                human_script_body[i].clear_data_pre();
+        }
+        return;
+    }
 }

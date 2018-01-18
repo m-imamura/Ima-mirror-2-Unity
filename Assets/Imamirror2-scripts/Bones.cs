@@ -41,7 +41,11 @@ public class Bones : MonoBehaviour
     // joint_position[]のエラー値
     private Vector4[] joint_error_values = new Vector4[25];// 25=JOINTS
 
+    // 可視化用
+    public bool init = false;
 
+    // ボーン用particle
+    public ParticleSystem.Particle[] particles;
 
     // Use this for initialization
     void Start()
@@ -72,6 +76,16 @@ public class Bones : MonoBehaviour
 
             // joint_positionのエラー用の値をセットする
             joint_error_values = set_joint_error_value();
+            
+        }
+
+        // Bone表示用パーティクルを生成
+        particles = new ParticleSystem.Particle[BONES];
+        for (int i = 0; i < BONES; i++)
+        {
+            particles[i].position = new Vector3(0, 0, 0);
+            particles[i].startSize = 0.1f;
+            particles[i].startColor = Color.red;
         }
     }
 
@@ -111,6 +125,13 @@ public class Bones : MonoBehaviour
         }
 
         // C#ではnewに対するdeleteがないらしい（ガベージコレクション）
+
+        if (init) {
+            for (int i = 0; i < BONES; i++)
+                particles[i].position = bottom_init[i];
+
+            GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+        }
     }
 
     // ボーン情報の更新

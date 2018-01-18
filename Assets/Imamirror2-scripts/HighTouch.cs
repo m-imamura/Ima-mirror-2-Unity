@@ -29,6 +29,9 @@ public class HighTouch : MonoBehaviour {
     // 1人用か2人用か
     // 一人でデバッグするときのため
     public bool can_1_person = false;
+
+    // 最後にハイタッチした時間
+    private System.DateTime[][] last_hightouch_time;
     
     // Use this for initialization
     void Start () {
@@ -40,6 +43,15 @@ public class HighTouch : MonoBehaviour {
         _root_script = _root_object.GetComponent<Root>();
         if (_root_script == null)
             return;
+
+        // ハイタッチした時間を記録する
+        last_hightouch_time = new System.DateTime[6][];
+        for (int i = 0; i < 6; i++)
+        {
+            last_hightouch_time[i] = new System.DateTime[6];
+            for (int j = 0; j < 6; j++)
+                last_hightouch_time[i][j] = new System.DateTime(2017, 11, 1, 0, 0, 0); // 初期値
+        }
     }
 
     // Update is called once per frame
@@ -94,6 +106,11 @@ public class HighTouch : MonoBehaviour {
                     {
                         int body1 = i / 2;
                         int body2 = j / 2;
+
+                        // ここで元に戻る（交換関係を解除する）機能を付ける
+                        Debug.Log(System.DateTime.Now - last_hightouch_time[body1][body2]);
+                        //if(System.DateTime.Now - last_hightouch_time[body1][body2] > )
+                        last_hightouch_time[body1][body2] = System.DateTime.Now;
                         
                         // ポーズ判定メソッドにかける
                         int pose1 = pose_decision(data[body1]);
@@ -123,7 +140,7 @@ public class HighTouch : MonoBehaviour {
         if (false) 
             pose_num = 2;
 
-        Debug.Log("ポーズ " + pose_num + "と判定");
+        //Debug.Log("ポーズ " + pose_num + "と判定");
 
         return pose_num;
     }

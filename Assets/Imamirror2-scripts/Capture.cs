@@ -7,7 +7,7 @@ public class Capture : MonoBehaviour {
     //public bool grab;
     //public Renderer display;
 
-    private bool now_capture = false;
+    public bool now_capture = false;
 
     private int screenshot_count = 0;
 

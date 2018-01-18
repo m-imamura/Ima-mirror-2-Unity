@@ -91,22 +91,35 @@ public class HighTouchSign : MonoBehaviour
         // data[]に全部の骨格情報を取得する
         Windows.Kinect.Body[] data = _BodyManager.GetData();
 
+        Vector3[] head_position = new Vector3[6];
         // 無効な値をセット
-        for (int i = 0; i < 6 * 2; i++)
-            hand_position[i] = new Vector3(100, 100, 100);
+        for (int i = 0; i < 6; i++) {
+            head_position[i] = new Vector3(100, 100, 100);
+            hand_position[i * 2 + 0] = new Vector3(100, 100, 100);
+            hand_position[i * 2 + 1] = new Vector3(100, 100, 100);
+        }
 
-        // 全員の手の位置を取得する
+        // 全員の位置を取得する
         for (int body = 0; body < 6; body++)
         {
             if (data[body].IsTracked)
             {
-                if (data[body].Joints[JointType.HandLeft].TrackingState == TrackingState.Tracked)
+                // 頭
+                if (data[body].Joints[JointType.Head].TrackingState == TrackingState.Tracked && _root.human_script[body].ready == false)
+                {
+                    head_position[body].x = data[body].Joints[JointType.Head].Position.X;
+                    head_position[body].y = data[body].Joints[JointType.Head].Position.Y;
+                    head_position[body].z = data[body].Joints[JointType.Head].Position.Z;
+                }
+                // 左手
+                if (data[body].Joints[JointType.HandLeft].TrackingState == TrackingState.Tracked && _root.human_script[body].ready == false)
                 {
                   hand_position[body * 2 + 0].x = data[body].Joints[JointType.HandLeft].Position.X;
                   hand_position[body * 2 + 0].y = data[body].Joints[JointType.HandLeft].Position.Y;
                   hand_position[body * 2 + 0].z = data[body].Joints[JointType.HandLeft].Position.Z;
                 }
-                if (data[body].Joints[JointType.HandRight].TrackingState == TrackingState.Tracked)
+                // 右手
+                if (data[body].Joints[JointType.HandRight].TrackingState == TrackingState.Tracked && _root.human_script[body].ready == false)
                 {
                   hand_position[body * 2 + 1].x = data[body].Joints[JointType.HandRight].Position.X;
                   hand_position[body * 2 + 1].y = data[body].Joints[JointType.HandRight].Position.Y;
@@ -115,61 +128,72 @@ public class HighTouchSign : MonoBehaviour
             }
         }
 
-        // xでソートして色を付ける
-        int smaller_index = 0;
-        int particle_count = 0;
-        for (int i = 0; i < 6 * 2; i++)
-        {
-            for (int j = 0; j < 6 * 2; j++)
+        // 頭を基準にソート
+        int[] human_soat = new int[6];
+        for (int i = 0; i < 6; i++) {
+            human_soat[i] = i;
+        }
+        for (int i = 0; i < 6; i++) {
+            int smaller_index = i;
+            for(int j = i; j < 6; j++)
             {
-                if (hand_position[j].x < hand_position[smaller_index].x)
-                {
-                    smaller_index = j;
+                if (head_position[j].x < head_position[smaller_index].x) {
+                    Vector3 tmp_vector = head_position[j];
+                    head_position[j] = head_position[smaller_index];
+                    head_position[smaller_index] = tmp_vector;
+
+                    int tmp_int = human_soat[j];
+                    human_soat[j] = human_soat[smaller_index];
+                    human_soat[smaller_index] = tmp_int;
                 }
             }
-
-            if (hand_position[smaller_index] != new Vector3(100, 100, 100))
-            {
-
-                particles[particle_count].position = hand_position[smaller_index] * 10.0f;
-
-                switch (particle_count)
-                {
-                    case 0:
-                        break;
-                    case 1:
-                    case 2:
-                        particles[particle_count].startColor = Color.yellow;
-                        break;
-                    case 3:
-                    case 4:
-                        particles[particle_count].startColor = Color.cyan;
-                        break;
-                    case 5:
-                    case 6:
-                        particles[particle_count].startColor = Color.magenta;
-                        break;
-                    case 7:
-                    case 8:
-                        particles[particle_count].startColor = Color.red;
-                        break;
-                    case 9:
-                    case 10:
-                        particles[particle_count].startColor = Color.green;
-                        break;
-                    case 11:
-                        break;
-                    default:
-                        particles[particle_count].startColor = Color.clear;
-                        break;
-                }
-            }
-            
-            // パーティクル位置に保存したhand_positionに無効な値をセット
-            hand_position[smaller_index] = new Vector3(100, 100, 100);
-            particle_count++;
         }
 
+        //Debug.Log(human_soat[0] +" "+ human_soat[1] + " " + human_soat[2] + " " + human_soat[3] + " " + human_soat[4] + " " + human_soat[5]);
+
+        // 隣り合う人の手に色付け
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 2; j++)
+            {
+                if (hand_position[human_soat[i] * 2 + j] != new Vector3(100, 100, 100))
+                {
+                    particles[i * 2 + j].position = hand_position[human_soat[i] * 2 + j] * 10.0f;
+
+                    switch (i * 2 + j)
+                    {
+                        case 0:
+                            break;
+                        case 1:
+                        case 2:
+                            particles[i * 2 + j].startColor = Color.yellow;
+                            break;
+                        case 3:
+                        case 4:
+                            particles[i * 2 + j].startColor = Color.cyan;
+                            break;
+                        case 5:
+                        case 6:
+                            particles[i * 2 + j].startColor = Color.magenta;
+                            break;
+                        case 7:
+                        case 8:
+                            particles[i * 2 + j].startColor = Color.red;
+                            break;
+                        case 9:
+                        case 10:
+                            particles[i * 2 + j].startColor = Color.green;
+                            break;
+                        case 11:
+                            break;
+                        default:
+                            particles[i * 2 + j].startColor = Color.clear;
+                            break;
+                    }
+                }
+            }
+        }
+        
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
     }
  

@@ -41,6 +41,10 @@ public class Human : MonoBehaviour {
     // eye_level
     public Vector3 eye_level;
 
+    // キャプチャ（可視化用）
+    public GameObject chapture_ogj;
+    private Capture _capthre;
+
     // Use this for initialization
     void Start() {
         shape_bones = new Bones[SHAPE_BODY_MAX];
@@ -96,17 +100,20 @@ public class Human : MonoBehaviour {
         trans = trans_obj.GetComponent<Transformation>();
         
         // Bone表示用パーティクルを生成
-        particles = new ParticleSystem.Particle[BONES];
-        for (int i = 0; i < BONES; i++)
+        particles = new ParticleSystem.Particle[BONES*2];
+        for (int i = 0; i < BONES*2; i++)
         {
             particles[i].position = new Vector3(0, 0, 0);
-            particles[i].startSize = 1f;
-            particles[i].startColor = Color.white;
+            particles[i].startSize = 0.1f;
+            particles[i].startColor = Color.red;
         }
 
         // mapper
         mapper = Kinect.KinectSensor.GetDefault().CoordinateMapper;
         Debug.Log("start bone");
+
+        // キャプチャ用
+        _capthre = chapture_ogj.GetComponent<Capture>();
     }
 	
 	// Update is called once per frame
@@ -128,9 +135,12 @@ public class Human : MonoBehaviour {
 
     public void set_init_data(int shape, int actor, int pose) {
 
+        // ここでスクリーンショットをとると取得時の形状がとれる．
+        _capthre.now_capture = true;
+
         if (!pre_body_mode) // ハイタッチモードでは身体形状の骨格情報と点群情報も取得する
         {
-            Debug.Log("ハイタッチモード");
+            //Debug.Log("ハイタッチモード");
             shape_bones[pose].set_bones_init_data(shape_num);
             shape_points[pose].set_points_data(shape_num);
             set_Matrix_M(pose); // ここでMatrixM-1の計算と保存をする．
@@ -146,8 +156,10 @@ public class Human : MonoBehaviour {
         actor_bones.set_bones_init_data(actor_num);
         //actor_bones.set_bones_data(actor_num); // 要らないかも？
         
-        Debug.Log("set_init_data(" + shape_num + ", " + actor_num + ")");
+        //Debug.Log("set_init_data(" + shape_num + ", " + actor_num + ")");
         ready = true;
+        
+
         return;
     }
 
@@ -176,7 +188,7 @@ public class Human : MonoBehaviour {
             vi_norm_mat.m00 = vi_norm_mat.m11 = vi_norm_mat.m22 = vi_norm_mat.m33 = vi_norm;
 
             // 行列 M の全体を求める
-            M_matrix = vi_norm_mat * M_transrate * M_rotate;
+            M_matrix = /*vi_norm_mat * */M_transrate * M_rotate;
             M_inverse[pose_num][b] = M_matrix.inverse;
         }
         return;
@@ -202,6 +214,12 @@ public class Human : MonoBehaviour {
                 new_bottom[b] = new_bottom[parent] + shape_bones[pose_num].length[parent] * actor_bones.vector[parent];
                 new_bottom[b].w = 1.0f; // w値は直す
             }
+
+            particles[b].position = new_bottom[b];
+            particles[b + BONES].startColor = Color.yellow;
+            Vector4 tmp = new Vector4(1, 0, 0, 0);
+            tmp += actor_bones.bottom[b];
+            particles[b + BONES].position = tmp;
             
         }
 
@@ -276,7 +294,7 @@ public class Human : MonoBehaviour {
                     v_norm_mat.m00 = v_norm_mat.m11 = v_norm_mat.m22 = v_norm_mat.m33 = v_norm;
 
                     // 行列 B の全体を求める
-                    B_matrix = v_norm_mat * B_transrate * B_rotate;
+                    B_matrix =/* v_norm_mat **/ B_transrate * B_rotate;
                     
                     // 変換後の点に b 番ボーンの影響を足し合わせる
                     shape_points[pose_num].points[p] += w_matrix * B_matrix * M_inverse[pose_num][b] * shape_points[pose_num].points_init[p];

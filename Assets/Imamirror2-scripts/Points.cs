@@ -54,6 +54,8 @@ public class Points : MonoBehaviour {
 
     private ParticleSystem.Particle[] particles_no; // off用パーティクル
 
+    // 可視化用
+    public bool init = false;
 
     // Use this for initialization
     void Start () {
@@ -190,16 +192,20 @@ public class Points : MonoBehaviour {
     }
 
     public void view_trans_points() {
-        
-        for (int p =0; p<points_num; p++) {
-            particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
-            //particles[p].position = new Vector3(points_init[p].x * 10f, points_init[p].y * 10f, points_init[p].z * 10f);
+
+        for (int p = 0; p < points_num; p++)
+        {
+            if (init)
+                particles[p].position = new Vector3(points_init[p].x * 10f, points_init[p].y * 10f, points_init[p].z * 10f);
+            else  
+                particles[p].position = new Vector3(points[p].x * 10f, points[p].y * 10f, points[p].z * 10f);
+            
             particles[p].startSize = particle_Size;
             particles[p].startColor = points_color[p];
         }
-        particles[0].position = new Vector3(0,0,0);
-        particles[0].startSize = 10f;
-        particles[0].startColor = Color.yellow;
+        //particles[0].position = new Vector3(0,0,0);
+        //particles[0].startSize = 10f;
+        //particles[0].startColor = Color.yellow;
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
     }
 
