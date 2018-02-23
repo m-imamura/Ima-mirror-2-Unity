@@ -29,6 +29,10 @@ public class BodyIndexView : MonoBehaviour
     private int depth_width;
     private int depth_height;
 
+    // Body
+    public GameObject BodySourceManager;
+    private BodySourceManager _bodySourceManager;
+
     // Root
     public GameObject RootObject;
     private Root _root;
@@ -82,6 +86,9 @@ public class BodyIndexView : MonoBehaviour
         ColorDATA = new Texture2D(color_width, color_height, TextureFormat.RGBA32, false);
         ColorSpacePOINTS = new ColorSpacePoint[depth_width * depth_height];
 
+        // Body関係
+        _bodySourceManager = BodySourceManager.GetComponent<BodySourceManager>();
+
         // Root
         _root = RootObject.GetComponent<Root>();
         
@@ -133,8 +140,11 @@ public class BodyIndexView : MonoBehaviour
         for (int p = 0; p < particle_Max; p++)
             particles[p].position = new Vector3(0, 0, 0);
 
+
         // Depthデータを基準にパーティクルを表示する
         int particle_count = 0;
+
+
         for (int y=0;y<depth_height; y+=particle_density) { 
             for (int x =0;x<depth_width; x+=particle_density) {
 
@@ -145,7 +155,7 @@ public class BodyIndexView : MonoBehaviour
                     if (IndexDATA[index] != 255)
                     {
                         int j = IndexDATA[index];
-                        if (_root.human_script[j].actor_num == -1) {
+                        if (_root.human_script[j].shape_num == -1) {
                             // Debug.Log("+ " + IndexDATA[index]);
                             // 座標取得
                             float p_x = CameraSpacePOINTS[index].X * 10;
@@ -166,6 +176,32 @@ public class BodyIndexView : MonoBehaviour
                 }
             }
         }
+
+        // ボーンの描画
+        Windows.Kinect.Body[] data = _bodySourceManager.GetData();
+        for (int i = 0; i < 6; i++)
+        {
+            if (_root.human_script[i].shape_num == -1)
+            {
+                for (Windows.Kinect.JointType jt = Windows.Kinect.JointType.SpineBase; jt <= Windows.Kinect.JointType.ThumbRight; jt++)
+                {
+                    if (particle_count < particle_Max)
+                    {
+                        Vector3 position_tmp;
+                        position_tmp.x = data[i].Joints[jt].Position.X * 10.0f;
+                        position_tmp.y = data[i].Joints[jt].Position.Y * 10.0f;
+                        position_tmp.z = data[i].Joints[jt].Position.Z * 10.0f;
+
+                        particles[particle_count].position = position_tmp;
+                        particles[particle_count].startSize = 0; // particle_Size*2;
+                        particles[particle_count].startColor = Color.cyan;
+                        particle_count++;
+                    }
+                }
+            }
+        }
+
+
         GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
         
     }

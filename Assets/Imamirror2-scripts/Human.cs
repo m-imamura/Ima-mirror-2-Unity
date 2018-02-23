@@ -104,8 +104,8 @@ public class Human : MonoBehaviour {
         for (int i = 0; i < BONES*2; i++)
         {
             particles[i].position = new Vector3(0, 0, 0);
-            particles[i].startSize = 0.1f;
-            particles[i].startColor = Color.red;
+            particles[i].startSize = 1f;
+            particles[i].startColor = Color.cyan;
         }
 
         // mapper
@@ -154,6 +154,10 @@ public class Human : MonoBehaviour {
             }
         }
         actor_bones.set_bones_init_data(actor_num);
+        for (int i = 0; i < SHAPE_BODY_MAX; i++)
+        {
+            set_Matrix_M(i);// ここでMatrixM-1の計算と保存をする．
+        }
         //actor_bones.set_bones_data(actor_num); // 要らないかも？
         
         //Debug.Log("set_init_data(" + shape_num + ", " + actor_num + ")");
@@ -209,11 +213,13 @@ public class Human : MonoBehaviour {
                 new_bottom[b].w = 1.0f; // w値は直す
             }
 
-            particles[b].position = new_bottom[b];
-            particles[b + BONES].startColor = Color.yellow;
-            Vector4 tmp = new Vector4(1, 0, 0, 0);
+            particles[b].position = new_bottom[b]*10;
+            particles[b].startColor = Color.yellow;
+            particles[b].startSize = 1f;
+
+            Vector4 tmp = new Vector4(0, 0, 0, 0);
             tmp += actor_bones.bottom[b];
-            particles[b + BONES].position = tmp;
+            particles[b + BONES].position = tmp*10;
             
         }
 
@@ -305,6 +311,14 @@ public class Human : MonoBehaviour {
         shape_num = -1;
         ready = false;
 
+        // ボーンパーティクルのクリア
+        for (int p = 0; p < BONES * 2; p++) // パーティクルを全部クリアするとうまくいく．
+        {
+            particles[p].position = new Vector3(0, 0, 0);
+        }
+        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+
+
         return;
     }
 
@@ -316,6 +330,14 @@ public class Human : MonoBehaviour {
 
         actor_num = -1;
         ready = false;
+
+        // ボーンパーティクルのクリア
+        for (int p = 0; p < BONES * 2; p++) // パーティクルを全部クリアするとうまくいく．
+        {
+            particles[p].position = new Vector3(0, 0, 0);
+        }
+        GetComponent<ParticleSystem>().SetParticles(particles, particles.Length);
+
 
         return;
     }
